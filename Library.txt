@@ -274,6 +274,27 @@ function Linux.Create(config)
         ZIndex = 1
     })
 
+    local IndicatorHolder = Linux.Instance("Frame", {
+        Parent = TabsBar,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 3
+    })
+
+    local TabIndicator = Linux.Instance("Frame", {
+        Parent = IndicatorHolder,
+        BackgroundColor3 = Linux.Theme.Accent,
+        Size = UDim2.new(0, 5, 0, 22),
+        Position = UDim2.new(0, 0, 0, 0),
+        Visible = false,
+        ZIndex = 3
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = TabIndicator,
+        CornerRadius = UDim.new(0, 4)
+    })
+
     local isMinimized = false
     local originalSize = Main.Size
     local originalPos = Main.Position
@@ -332,20 +353,6 @@ function Linux.Create(config)
 
         Linux.Instance("UICorner", {
             Parent = TabBtn,
-            CornerRadius = UDim.new(0, 4)
-        })
-
-        local TabIndicator = Linux.Instance("Frame", {
-            Parent = TabBtn,
-            BackgroundColor3 = Linux.Theme.Accent,
-            Size = UDim2.new(0, 3, 1, 0),
-            Position = UDim2.new(0, 0, 0, 0),
-            Visible = false,
-            ZIndex = 2
-        })
-
-        Linux.Instance("UICorner", {
-            Parent = TabIndicator,
             CornerRadius = UDim.new(0, 4)
         })
 
@@ -427,7 +434,6 @@ function Linux.Create(config)
                 if tab.Icon then
                     tab.Icon.ImageColor3 = Color3.fromRGB(150, 150, 150)
                 end
-                tab.Indicator.Visible = false
             end
             TabContent.Visible = true
             TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -435,6 +441,8 @@ function Linux.Create(config)
                 TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
             end
             TabIndicator.Visible = true
+            local targetY = TabBtn.AbsolutePosition.Y - IndicatorHolder.AbsolutePosition.Y + (TabBtn.AbsoluteSize.Y - TabIndicator.AbsoluteSize.Y) / 2
+            TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, targetY)}):Play()
             CurrentTab = tabIndex
         end)
 
@@ -443,8 +451,7 @@ function Linux.Create(config)
             Button = TabBtn,
             Text = TabText,
             Icon = TabIcon,
-            Content = TabContent,
-            Indicator = TabIndicator
+            Content = TabContent
         }
 
         if not CurrentTab then
@@ -454,6 +461,8 @@ function Linux.Create(config)
                 TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
             end
             TabIndicator.Visible = true
+            local targetY = TabBtn.AbsolutePosition.Y - IndicatorHolder.AbsolutePosition.Y + (TabBtn.AbsoluteSize.Y - TabIndicator.AbsoluteSize.Y) / 2
+            TabIndicator.Position = UDim2.new(0, 0, 0, targetY)
             CurrentTab = tabIndex
         end
 
