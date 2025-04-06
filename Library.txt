@@ -31,23 +31,33 @@ function Linux:SafeCallback(Function, ...)
 
     local Success, Error = pcall(Function, ...)
     if not Success then
-        self:Notify("Callback Error: " .. tostring(Error))
+        self:Notify({
+            Title = "Callback Error",
+            Content = tostring(Error),
+            Duration = 5
+        })
     end
 end
 
-function Linux:Notify(Message)
+function Linux:Notify(config)
+    local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
+    local notificationWidth = isMobile and 200 or 300
+    local notificationHeight = config.SubContent and 80 or 60
+    local startPosX = isMobile and 10 or 20
+
     local NotificationHolder = Linux.Instance("ScreenGui", {
         Name = "NotificationHolder",
         Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
         ResetOnSpawn = false,
-        Enabled = true
+        Enabled = true,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     })
 
     local Notification = Linux.Instance("Frame", {
         Parent = NotificationHolder,
         BackgroundColor3 = Linux.Theme.Background,
-        Size = UDim2.new(0, 250, 0, 60),
-        Position = UDim2.new(1, -260, 1, -70),
+        Size = UDim2.new(0, notificationWidth, 0, notificationHeight),
+        Position = UDim2.new(1, 10, 1, -notificationHeight - 10),
         ZIndex = 100
     })
 
@@ -56,21 +66,27 @@ function Linux:Notify(Message)
         CornerRadius = UDim.new(0, 5)
     })
 
-    local Border = Linux.Instance("Frame", {
+    local TitleLabel = Linux.Instance("TextLabel", {
         Parent = Notification,
-        BackgroundColor3 = Linux.Theme.Accent,
-        Size = UDim2.new(1, 0, 0, 2),
-        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -10, 0, 20),
+        Position = UDim2.new(0, 5, 0, 5),
+        Font = Enum.Font.SourceSansBold,
+        Text = config.Title or "Notification",
+        TextColor3 = Linux.Theme.Text,
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
         ZIndex = 101
     })
 
-    local MessageLabel = Linux.Instance("TextLabel", {
+    local ContentLabel = Linux.Instance("TextLabel", {
         Parent = Notification,
         BackgroundTransparency = 1,
-        Size = UDim2.new(1, -10, 1, -10),
-        Position = UDim2.new(0, 5, 0, 5),
+        Size = UDim2.new(1, -10, 0, 20),
+        Position = UDim2.new(0, 5, 0, 25),
         Font = Enum.Font.SourceSans,
-        Text = Message,
+        Text = config.Content or "Content",
         TextColor3 = Linux.Theme.Text,
         TextSize = 14,
         TextWrapped = true,
@@ -79,14 +95,33 @@ function Linux:Notify(Message)
         ZIndex = 101
     })
 
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, -10, 1, -70)}):Play()
+    if config.SubContent then
+        local SubContentLabel = Linux.Instance("TextLabel", {
+            Parent = Notification,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -10, 0, 20),
+            Position = UDim2.new(0, 5, 0, 45),
+            Font = Enum.Font.SourceSans,
+            Text = config.SubContent,
+            TextColor3 = Color3.fromRGB(150, 150, 150),
+            TextSize = 12,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            ZIndex = 101
+        })
+    end
 
-    task.delay(5, function()
-        TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, -260, 1, -70)}):Play()
-        task.wait(0.3)
-        NotificationHolder:Destroy()
-    end)
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(0, startPosX, 1, -notificationHeight - 10)}):Play()
+
+    if config.Duration then
+        task.delay(config.Duration, function()
+            TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, 10, 1, -notificationHeight - 10)}):Play()
+            task.wait(0.5)
+            NotificationHolder:Destroy()
+        end)
+    end
 end
 
 function Linux.Create(config)
