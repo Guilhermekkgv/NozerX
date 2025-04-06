@@ -842,7 +842,7 @@ function Linux.Create(config)
 
             local Knob = Linux.Instance("Frame", {
                 Parent = SliderBar,
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 250),
                 Size = UDim2.new(0, 12, 0, 12),
                 Position = UDim2.new(0, 0, 0, -3),
                 ZIndex = 2
@@ -1364,7 +1364,7 @@ function Linux.Create(config)
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                Size = UDim2.new(1, -5, 0, 20),
+                Size = UDim2.new(1, -5, 0, 40),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -1377,13 +1377,27 @@ function Linux.Create(config)
             local ParagraphTitle = Linux.Instance("TextLabel", {
                 Parent = ParagraphFrame,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 1, 0),
+                Size = UDim2.new(1, -10, 0, 20),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSansBold,
                 Text = config.Title or "",
                 TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextSize = 16,
                 TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 1
+            })
+
+            local ParagraphContent = Linux.Instance("TextLabel", {
+                Parent = ParagraphFrame,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, -10, 0, 20),
+                Position = UDim2.new(0, 5, 0, 20),
+                Font = Enum.Font.SourceSans,
+                Text = config.Content or "Description",
+                TextColor3 = Linux.Theme.Text,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextWrapped = true,
                 ZIndex = 1
             })
 
@@ -1395,10 +1409,20 @@ function Linux.Create(config)
                 return ParagraphTitle.Text
             end
 
+            local function SetContent(newContent)
+                ParagraphContent.Text = tostring(newContent)
+            end
+
+            local function GetContent()
+                return ParagraphContent.Text
+            end
+
             return {
                 Instance = ParagraphFrame,
                 SetTitle = SetTitle,
-                GetTitle = GetTitle
+                GetTitle = GetTitle,
+                SetContent = SetContent,
+                GetContent = GetContent
             }
         end
 
