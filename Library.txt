@@ -24,8 +24,72 @@ function Linux.Instance(class, props)
     return inst
 end
 
+function Linux:SafeCallback(Function, ...)
+    if not Function then
+        return
+    end
+
+    local Success, Error = pcall(Function, ...)
+    if not Success then
+        self:Notify("Callback Error: " .. tostring(Error))
+    end
+end
+
+function Linux:Notify(Message)
+    local NotificationHolder = Linux.Instance("ScreenGui", {
+        Name = "NotificationHolder",
+        Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
+        ResetOnSpawn = false,
+        Enabled = true
+    })
+
+    local Notification = Linux.Instance("Frame", {
+        Parent = NotificationHolder,
+        BackgroundColor3 = Linux.Theme.Background,
+        Size = UDim2.new(0, 250, 0, 60),
+        Position = UDim2.new(1, -260, 1, -70),
+        ZIndex = 100
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = Notification,
+        CornerRadius = UDim.new(0, 5)
+    })
+
+    local Border = Linux.Instance("Frame", {
+        Parent = Notification,
+        BackgroundColor3 = Linux.Theme.Accent,
+        Size = UDim2.new(1, 0, 0, 2),
+        Position = UDim2.new(0, 0, 0, 0),
+        ZIndex = 101
+    })
+
+    local MessageLabel = Linux.Instance("TextLabel", {
+        Parent = Notification,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -10, 1, -10),
+        Position = UDim2.new(0, 5, 0, 5),
+        Font = Enum.Font.SourceSans,
+        Text = Message,
+        TextColor3 = Linux.Theme.Text,
+        TextSize = 14,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ZIndex = 101
+    })
+
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, -10, 1, -70)}):Play()
+
+    task.delay(5, function()
+        TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, -260, 1, -70)}):Play()
+        task.wait(0.3)
+        NotificationHolder:Destroy()
+    end)
+end
+
 function Linux.Create(config)
-    -- Limpa UIs antigas com o mesmo nome (se ainda existir alguma com nome fixo)
     for _, v in pairs(game.CoreGui:GetChildren()) do
         if v.Name == "LinuxUI" then
             v:Destroy()
@@ -34,10 +98,8 @@ function Linux.Create(config)
 
     local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
-    -- Gera um nome aleatório pra UI real (ex.: UI_827364)
     local randomName = "UI_" .. tostring(math.random(100000, 999999))
 
-    -- Cria a UI real com o nome aleatório
     local LinuxUI = Linux.Instance("ScreenGui", {
         Name = randomName,
         Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
@@ -45,13 +107,11 @@ function Linux.Create(config)
         Enabled = true
     })
 
-    -- Aplica a proteção à UI real
     ProtectGui(LinuxUI)
 
-    -- Cria uma UI falsa (isca) no CoreGui
     local FakeUI = Instance.new("ScreenGui", game:GetService("CoreGui"))
     FakeUI.Name = "FakeUI"
-    FakeUI.Enabled = false -- Garante que a UI falsa não seja visível
+    FakeUI.Enabled = false
     FakeUI.ResetOnSpawn = false
 
     local tabWidth = config.TabWidth or 110
@@ -203,7 +263,7 @@ function Linux.Create(config)
 
     CloseButton.MouseButton1Click:Connect(function()
         LinuxUI:Destroy()
-        FakeUI:Destroy() -- Destroi a UI falsa junto com a real
+        FakeUI:Destroy()
     end)
 
     InputService.InputBegan:Connect(function(input)
@@ -349,12 +409,10 @@ function Linux.Create(config)
 
         function TabElements.Button(config)
             elementOrder = elementOrder + 1
-            local showDesc = config.ShowDescription == nil and true or config.ShowDescription
             local BtnFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
-                AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -393,32 +451,9 @@ function Linux.Create(config)
                 ZIndex = 1
             })
 
-            local Description
-            if showDesc and config.Description then
-                Description = Linux.Instance("TextLabel", {
-                    Parent = BtnFrame,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -10, 0, 0),
-                    Position = UDim2.new(0, 5, 0, 30),
-                    Font = Enum.Font.SourceSans,
-                    Text = config.Description,
-                    TextColor3 = Linux.Theme.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    TextWrapped = true,
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    ZIndex = 1
-                })
-            end
-
-            local FramePadding = Linux.Instance("UIPadding", {
-                Parent = BtnFrame,
-                PaddingBottom = UDim.new(0, 5)
-            })
-
             Btn.MouseButton1Click:Connect(function()
                 TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Accent}):Play()
-                spawn(function() config.Callback() end)
+                spawn(function() Linux:SafeCallback(config.Callback) end)
                 wait(0.1)
                 TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Element}):Play()
             end)
@@ -428,12 +463,10 @@ function Linux.Create(config)
 
         function TabElements.Toggle(config)
             elementOrder = elementOrder + 1
-            local showDesc = config.ShowDescription == nil and true or config.ShowDescription
             local Toggle = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
-                AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -494,29 +527,6 @@ function Linux.Create(config)
                 CornerRadius = UDim.new(1, 0)
             })
 
-            local Description
-            if showDesc and config.Description then
-                Description = Linux.Instance("TextLabel", {
-                    Parent = Toggle,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -10, 0, 0),
-                    Position = UDim2.new(0, 5, 0, 30),
-                    Font = Enum.Font.SourceSans,
-                    Text = config.Description,
-                    TextColor3 = Linux.Theme.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    TextWrapped = true,
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    ZIndex = 1
-                })
-            end
-
-            local TogglePadding = Linux.Instance("UIPadding", {
-                Parent = Toggle,
-                PaddingBottom = UDim.new(0, 5)
-            })
-
             local State = config.Default or false
 
             local function UpdateToggle()
@@ -536,7 +546,7 @@ function Linux.Create(config)
                 if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
                     State = not State
                     UpdateToggle()
-                    spawn(function() config.Callback(State) end)
+                    spawn(function() Linux:SafeCallback(config.Callback, State) end)
                 end
             end)
 
@@ -682,7 +692,7 @@ function Linux.Create(config)
                                     btn.TextColor3 = btn.Text == tostring(opt) and Linux.Theme.Accent or Linux.Theme.Text
                                 end
                             end
-                            spawn(function() config.Callback(opt) end)
+                            spawn(function() Linux:SafeCallback(config.Callback, opt) end)
                         end)
                     end
                 end
@@ -716,7 +726,7 @@ function Linux.Create(config)
                             btn.TextColor3 = btn.Text == tostring(value) and Linux.Theme.Accent or Linux.Theme.Text
                         end
                     end
-                    spawn(function() config.Callback(value) end)
+                    spawn(function() Linux:SafeCallback(config.Callback, value) end)
                 end
             end
 
@@ -730,12 +740,10 @@ function Linux.Create(config)
 
         function TabElements.Slider(config)
             elementOrder = elementOrder + 1
-            local showDesc = config.ShowDescription == nil and true or config.ShowDescription
             local Slider = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 40),
-                AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -810,29 +818,6 @@ function Linux.Create(config)
                 CornerRadius = UDim.new(1, 0)
             })
 
-            local Description
-            if showDesc and config.Description then
-                Description = Linux.Instance("TextLabel", {
-                    Parent = Slider,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -10, 0, 0),
-                    Position = UDim2.new(0, 5, 0, 40),
-                    Font = Enum.Font.SourceSans,
-                    Text = config.Description,
-                    TextColor3 = Linux.Theme.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    TextWrapped = true,
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    ZIndex = 1
-                })
-            end
-
-            local SliderPadding = Linux.Instance("UIPadding", {
-                Parent = Slider,
-                PaddingBottom = UDim.new(0, 5)
-            })
-
             local Min = config.Min or 0
             local Max = config.Max or 100
             local Default = config.Default or Min
@@ -846,7 +831,7 @@ function Linux.Create(config)
                 Knob.Position = UDim2.new(relativePos, -6, 0, -3)
                 FillBar.Size = UDim2.new(relativePos, 0, 1, 0)
                 ValueLabel.Text = tostring(Value)
-                spawn(function() config.Callback(Value) end)
+                spawn(function() Linux:SafeCallback(config.Callback, Value) end)
             end
 
             local draggingSlider = false
@@ -877,7 +862,7 @@ function Linux.Create(config)
                 Knob.Position = UDim2.new(relativePos, -6, 0, -3)
                 FillBar.Size = UDim2.new(relativePos, 0, 1, 0)
                 ValueLabel.Text = tostring(Value)
-                spawn(function() config.Callback(Value) end)
+                spawn(function() Linux:SafeCallback(config.Callback, Value) end)
             end
 
             SetValue(Default)
@@ -955,7 +940,7 @@ function Linux.Create(config)
 
             local function UpdateInput()
                 CheckTextBounds()
-                spawn(function() config.Callback(TextBox.Text) end)
+                spawn(function() Linux:SafeCallback(config.Callback, TextBox.Text) end)
             end
 
             TextBox.FocusLost:Connect(function(enterPressed)
@@ -1114,15 +1099,15 @@ function Linux.Create(config)
 
             local function ExecuteCallback(state)
                 if Mode == "Hold" then
-                    spawn(function() config.Callback(state) end)
+                    spawn(function() Linux:SafeCallback(config.Callback, state) end)
                 elseif Mode == "Toggle" then
                     if state then
                         ToggleState = not ToggleState
-                        spawn(function() config.Callback(ToggleState) end)
+                        spawn(function() Linux:SafeCallback(config.Callback, ToggleState) end)
                     end
                 elseif Mode == "Always" then
                     if ToggleState then
-                        spawn(function() config.Callback(true) end)
+                        spawn(function() Linux:SafeCallback(config.Callback, true) end)
                     end
                 end
             end
@@ -1279,7 +1264,7 @@ function Linux.Create(config)
             local function UpdateColor()
                 local color = Color3.fromHSV(Hue, Saturation, Value)
                 Palette.BackgroundColor3 = Color3.fromHSV(Hue, 1, 1)
-                spawn(function() config.Callback(color) end)
+                spawn(function() Linux:SafeCallback(config.Callback, color) end)
             end
 
             local draggingPalette = false
@@ -1341,12 +1326,10 @@ function Linux.Create(config)
 
         function TabElements.Paragraph(config)
             elementOrder = elementOrder + 1
-            local showDesc = config.ShowDescription == nil and true or config.ShowDescription
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                Size = UDim2.new(1, -5, 0, showDesc and 0 or 20),
-                AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
+                Size = UDim2.new(1, -5, 0, 20),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -1359,8 +1342,8 @@ function Linux.Create(config)
             local ParagraphTitle = Linux.Instance("TextLabel", {
                 Parent = ParagraphFrame,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 20),
-                Position = UDim2.new(0, 5, 0, 5),
+                Size = UDim2.new(1, -10, 1, 0),
+                Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSansBold,
                 Text = config.Title or "",
                 TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -1369,53 +1352,18 @@ function Linux.Create(config)
                 ZIndex = 1
             })
 
-            local ParagraphText
-            if showDesc and config.Description then
-                ParagraphText = Linux.Instance("TextLabel", {
-                    Parent = ParagraphFrame,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -10, 0, 0),
-                    Position = UDim2.new(0, 5, 0, 25),
-                    Font = Enum.Font.SourceSans,
-                    Text = config.Description or "",
-                    TextColor3 = Linux.Theme.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    TextWrapped = true,
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    ZIndex = 1
-                })
-            end
-
-            local ParagraphPadding = Linux.Instance("UIPadding", {
-                Parent = ParagraphFrame,
-                PaddingBottom = UDim.new(0, 5)
-            })
-
             local function SetTitle(newTitle)
                 ParagraphTitle.Text = tostring(newTitle)
-            end
-
-            local function SetText(newText)
-                if showDesc then
-                    ParagraphText.Text = tostring(newText)
-                end
             end
 
             local function GetTitle()
                 return ParagraphTitle.Text
             end
 
-            local function GetText()
-                return showDesc and ParagraphText and ParagraphText.Text or ""
-            end
-
             return {
                 Instance = ParagraphFrame,
                 SetTitle = SetTitle,
-                SetText = SetText,
-                GetTitle = GetTitle,
-                GetText = GetText
+                GetTitle = GetTitle
             }
         end
 
