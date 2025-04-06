@@ -1,9 +1,12 @@
 local TweenService = game:GetService("TweenService")
 local InputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 local Linux = {
     Theme = {
-        Background = Color3.fromRGB(19, 19, 19),
+        Background = Color3.fromRGB(24, 24, 24),
         Element = Color3.fromRGB(28, 28, 28),
         Accent = Color3.fromRGB(80, 120, 255),
         Text = Color3.fromRGB(180, 180, 180),
@@ -28,22 +31,25 @@ function Linux.Create(config)
         end
     end
 
+    local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
+
     local LinuxUI = Linux.Instance("ScreenGui", {
         Name = "LinuxUI",
-        Parent = game.CoreGui,
+        Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
         ResetOnSpawn = false,
         Enabled = true
     })
 
+    ProtectGui(LinuxUI)
+
     local tabWidth = config.TabWidth or 110
-    local useTransparency = config.Transparency == true
+
     local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
     local uiSize = isMobile and (config.SizeMobile or UDim2.fromOffset(300, 500)) or (config.SizePC or UDim2.fromOffset(550, 355))
 
     local Main = Linux.Instance("Frame", {
         Parent = LinuxUI,
         BackgroundColor3 = Linux.Theme.Background,
-        BackgroundTransparency = useTransparency and 0.30 or 0,
         Size = uiSize,
         Position = UDim2.new(0.5, -uiSize.X.Offset / 2, 0.5, -uiSize.Y.Offset / 2),
         Active = true,
@@ -59,7 +65,6 @@ function Linux.Create(config)
     local TopBar = Linux.Instance("Frame", {
         Parent = Main,
         BackgroundColor3 = Linux.Theme.Element,
-        BackgroundTransparency = useTransparency and 0.30 or 0,
         Size = UDim2.new(1, 0, 0, 25),
         ZIndex = 2
     })
@@ -207,7 +212,6 @@ function Linux.Create(config)
         local TabBtn = Linux.Instance("TextButton", {
             Parent = TabHolder,
             BackgroundColor3 = Linux.Theme.TabInactive,
-            BackgroundTransparency = useTransparency and 0.30 or 0,
             Size = UDim2.new(1, -5, 0, 28),
             Font = Enum.Font.SourceSans,
             Text = "",
@@ -251,8 +255,7 @@ function Linux.Create(config)
 
         local TabContent = Linux.Instance("ScrollingFrame", {
             Parent = Content,
-            BackgroundTransparency = useTransparency and 0.28 or 0,
-            BackgroundColor3 = Linux.Theme.Background,
+            BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
             CanvasSize = UDim2.new(0, 0, 0, 0),
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -269,7 +272,7 @@ function Linux.Create(config)
             Font = Enum.Font.SourceSansBold,
             Text = config.Name,
             TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 22,
+            TextSize = 18,
             TextXAlignment = Enum.TextXAlignment.Left,
             ZIndex = 2
         })
@@ -337,7 +340,6 @@ function Linux.Create(config)
             local BtnFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
@@ -417,7 +419,6 @@ function Linux.Create(config)
             local Toggle = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
@@ -534,7 +535,6 @@ function Linux.Create(config)
             local Dropdown = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 ZIndex = 2,
                 LayoutOrder = elementOrder
@@ -583,7 +583,6 @@ function Linux.Create(config)
             local DropFrame = Linux.Instance("ScrollingFrame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 0),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -647,7 +646,6 @@ function Linux.Create(config)
                         local OptBtn = Linux.Instance("TextButton", {
                             Parent = DropFrame,
                             BackgroundColor3 = Linux.Theme.DropdownOption,
-                            BackgroundTransparency = useTransparency and 0.3 or 0,
                             Size = UDim2.new(1, -5, 0, 25),
                             Font = Enum.Font.SourceSans,
                             Text = tostring(opt),
@@ -723,7 +721,6 @@ function Linux.Create(config)
             local Slider = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 40),
                 AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
@@ -884,7 +881,6 @@ function Linux.Create(config)
             local Input = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
@@ -982,7 +978,6 @@ function Linux.Create(config)
             local LabelFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
@@ -1049,7 +1044,6 @@ function Linux.Create(config)
             local Keybind = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 30),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
@@ -1214,7 +1208,6 @@ function Linux.Create(config)
             local ColorPicker = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, 90),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
@@ -1339,7 +1332,6 @@ function Linux.Create(config)
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                BackgroundTransparency = useTransparency and 0.3 or 0,
                 Size = UDim2.new(1, -5, 0, showDesc and 0 or 20),
                 AutomaticSize = showDesc and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
                 ZIndex = 1,
