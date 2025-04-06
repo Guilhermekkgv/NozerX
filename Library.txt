@@ -251,8 +251,7 @@ function Linux.Create(config)
 
         local TabContent = Linux.Instance("ScrollingFrame", {
             Parent = Content,
-            BackgroundTransparency = useTransparency and 0.3 or 0,
-            BackgroundColor3 = Linux.Theme.Background,
+            BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
             CanvasSize = UDim2.new(0, 0, 0, 0),
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
