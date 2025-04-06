@@ -589,10 +589,18 @@ function Linux.Create(config)
             local SelectedValue = config.Default or (Options[1] or "None")
 
             local function UpdateDropSize()
+                local optionHeight = 25
+                local paddingBetween = 2
+                local paddingTop = 5
                 local maxHeight = 150
+                local numOptions = #Options
+                local calculatedHeight = numOptions * optionHeight + (numOptions - 1) * paddingBetween + paddingTop
+                local finalHeight = math.min(calculatedHeight, maxHeight)
+                if finalHeight < 0 then finalHeight = 0 end
+
                 local tween = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
                 if IsOpen then
-                    TweenService:Create(DropFrame, tween, {Size = UDim2.new(1, -5, 0, maxHeight)}):Play()
+                    TweenService:Create(DropFrame, tween, {Size = UDim2.new(1, -5, 0, finalHeight)}):Play()
                     TweenService:Create(Arrow, tween, {Rotation = 180}):Play()
                 else
                     TweenService:Create(DropFrame, tween, {Size = UDim2.new(1, -5, 0, 0)}):Play()
