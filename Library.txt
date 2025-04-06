@@ -327,29 +327,61 @@ function Linux.Create(config)
 
         function TabElements.Button(config)
             elementOrder = elementOrder + 1
-            local Btn = Linux.Instance("TextButton", {
+            local BtnFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                ZIndex = 1,
+                LayoutOrder = elementOrder
+            })
+
+            Linux.Instance("UICorner", {
+                Parent = BtnFrame,
+                CornerRadius = UDim.new(0, 4)
+            })
+
+            local Btn = Linux.Instance("TextButton", {
+                Parent = BtnFrame,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 30),
+                Position = UDim2.new(0, 0, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Name,
                 TextColor3 = Linux.Theme.Text,
                 TextSize = 14,
                 ZIndex = 1,
-                LayoutOrder = elementOrder,
                 AutoButtonColor = false
             })
 
-            Linux.Instance("UICorner", {
-                Parent = Btn,
-                CornerRadius = UDim.new(0, 4)
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = BtnFrame,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local BtnPadding = Linux.Instance("UIPadding", {
+                Parent = BtnFrame,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             Btn.MouseButton1Click:Connect(function()
-                TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Accent}):Play()
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Accent}):Play()
                 spawn(function() config.Callback() end)
                 wait(0.1)
-                TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Element}):Play()
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Element}):Play()
             end)
 
             return Btn
@@ -361,6 +393,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -373,7 +406,7 @@ function Linux.Create(config)
             local Label = Linux.Instance("TextLabel", {
                 Parent = Toggle,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0.8, 0, 1, 0),
+                Size = UDim2.new(0.8, 0, 0, 30),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Name,
@@ -387,7 +420,7 @@ function Linux.Create(config)
                 Parent = Toggle,
                 BackgroundColor3 = Linux.Theme.Toggle,
                 Size = UDim2.new(0, 40, 0, 20),
-                Position = UDim2.new(1, -45, 0.5, -10),
+                Position = UDim2.new(1, -45, 0, 5),
                 ZIndex = 1
             })
 
@@ -419,6 +452,29 @@ function Linux.Create(config)
             Linux.Instance("UICorner", {
                 Parent = Knob,
                 CornerRadius = UDim.new(1, 0)
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Toggle,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local TogglePadding = Linux.Instance("UIPadding", {
+                Parent = Toggle,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local State = config.Default or false
@@ -453,6 +509,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 2,
                 LayoutOrder = elementOrder
             })
@@ -465,7 +522,7 @@ function Linux.Create(config)
             local Label = Linux.Instance("TextLabel", {
                 Parent = Dropdown,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0.8, 0, 1, 0),
+                Size = UDim2.new(0.8, 0, 0, 30),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Name,
@@ -478,7 +535,7 @@ function Linux.Create(config)
             local Selected = Linux.Instance("TextLabel", {
                 Parent = Dropdown,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -40, 1, 0),
+                Size = UDim2.new(1, -40, 0, 30),
                 Font = Enum.Font.SourceSans,
                 Text = config.Default or (config.Options and config.Options[1]) or "None",
                 TextColor3 = Linux.Theme.Text,
@@ -491,10 +548,33 @@ function Linux.Create(config)
                 Parent = Dropdown,
                 BackgroundTransparency = 1,
                 Size = UDim2.new(0, 14, 0, 14),
-                Position = UDim2.new(1, -20, 0.5, -7),
+                Position = UDim2.new(1, -20, 0, 8),
                 Image = "rbxassetid://10709767827",
                 ImageColor3 = Linux.Theme.Text,
                 ZIndex = 2
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Dropdown,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local DropdownPadding = Linux.Instance("UIPadding", {
+                Parent = Dropdown,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local DropFrame = Linux.Instance("ScrollingFrame", {
@@ -630,6 +710,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 40),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -704,6 +785,29 @@ function Linux.Create(config)
                 CornerRadius = UDim.new(1, 0)
             })
 
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Slider,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 40),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local SliderPadding = Linux.Instance("UIPadding", {
+                Parent = Slider,
+                PaddingBottom = UDim.new(0, 5)
+            })
+
             local Min = config.Min or 0
             local Max = config.Max or 100
             local Default = config.Default or Min
@@ -766,6 +870,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -778,7 +883,7 @@ function Linux.Create(config)
             local Label = Linux.Instance("TextLabel", {
                 Parent = Input,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0.5, 0, 1, 0),
+                Size = UDim2.new(0.5, 0, 0, 30),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Name,
@@ -792,7 +897,7 @@ function Linux.Create(config)
                 Parent = Input,
                 BackgroundColor3 = Linux.Theme.Toggle,
                 Size = UDim2.new(0.5, -10, 0, 20),
-                Position = UDim2.new(0.5, 5, 0.5, -10),
+                Position = UDim2.new(0.5, 5, 0, 5),
                 Font = Enum.Font.SourceSans,
                 Text = config.Default or "",
                 PlaceholderText = config.Placeholder or "Text Here",
@@ -810,6 +915,29 @@ function Linux.Create(config)
             Linux.Instance("UICorner", {
                 Parent = TextBox,
                 CornerRadius = UDim.new(0, 4)
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Input,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local InputPadding = Linux.Instance("UIPadding", {
+                Parent = Input,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local MaxLength = 50
@@ -863,6 +991,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -875,7 +1004,7 @@ function Linux.Create(config)
             local LabelText = Linux.Instance("TextLabel", {
                 Parent = LabelFrame,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 1, 0),
+                Size = UDim2.new(1, -10, 0, 30),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Text or "Label",
@@ -884,6 +1013,29 @@ function Linux.Create(config)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextTruncate = Enum.TextTruncate.AtEnd,
                 ZIndex = 1
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = LabelFrame,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local LabelPadding = Linux.Instance("UIPadding", {
+                Parent = LabelFrame,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local function SetText(newText)
@@ -903,6 +1055,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, -5, 0, 24),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -910,7 +1063,7 @@ function Linux.Create(config)
             local SectionText = Linux.Instance("TextLabel", {
                 Parent = Section,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 1, 0),
+                Size = UDim2.new(1, -10, 0, 24),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSansBold,
                 Text = config.Name,
@@ -918,6 +1071,29 @@ function Linux.Create(config)
                 TextSize = 18,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 ZIndex = 1
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Section,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 24),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local SectionPadding = Linux.Instance("UIPadding", {
+                Parent = Section,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             return Section
@@ -929,6 +1105,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 30),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -941,7 +1118,7 @@ function Linux.Create(config)
             local Label = Linux.Instance("TextLabel", {
                 Parent = Keybind,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0.5, 0, 1, 0),
+                Size = UDim2.new(0.5, 0, 0, 30),
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSans,
                 Text = config.Name,
@@ -955,7 +1132,7 @@ function Linux.Create(config)
                 Parent = Keybind,
                 BackgroundColor3 = Linux.Theme.Toggle,
                 Size = UDim2.new(0, 60, 0, 20),
-                Position = UDim2.new(1, -65, 0.5, -10),
+                Position = UDim2.new(1, -65, 0, 5),
                 Font = Enum.Font.SourceSans,
                 Text = config.Default and tostring(config.Default) or "None",
                 TextColor3 = Linux.Theme.Text,
@@ -971,6 +1148,29 @@ function Linux.Create(config)
             Linux.Instance("UICorner", {
                 Parent = KeyBox,
                 CornerRadius = UDim.new(0, 4)
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = Keybind,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 30),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local KeybindPadding = Linux.Instance("UIPadding", {
+                Parent = Keybind,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local Mode = config.Mode or "Hold"
@@ -1093,6 +1293,7 @@ function Linux.Create(config)
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
                 Size = UDim2.new(1, -5, 0, 90),
+                AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -1141,6 +1342,29 @@ function Linux.Create(config)
             Linux.Instance("UICorner", {
                 Parent = PaletteKnob,
                 CornerRadius = UDim.new(1, 0)
+            })
+
+            local Description
+            if config.Description then
+                Description = Linux.Instance("TextLabel", {
+                    Parent = ColorPicker,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -10, 0, 0),
+                    Position = UDim2.new(0, 5, 0, 90),
+                    Font = Enum.Font.SourceSans,
+                    Text = config.Description,
+                    TextColor3 = Linux.Theme.Text,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    ZIndex = 1
+                })
+            end
+
+            local ColorPickerPadding = Linux.Instance("UIPadding", {
+                Parent = ColorPicker,
+                PaddingBottom = UDim.new(0, 5)
             })
 
             local Hue = 0
@@ -1245,7 +1469,7 @@ function Linux.Create(config)
                 Size = UDim2.new(1, -10, 0, 0),
                 Position = UDim2.new(0, 5, 0, 25),
                 Font = Enum.Font.SourceSans,
-                Text = config.Text or "",
+                Text = config.Description or "",
                 TextColor3 = Linux.Theme.Text,
                 TextSize = 14,
                 TextXAlignment = Enum.TextXAlignment.Left,
