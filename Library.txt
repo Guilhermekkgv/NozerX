@@ -334,6 +334,7 @@ function Linux.Create(config)
     local Tabs = {}
     local CurrentTab = nil
     local tabOrder = 0
+    local isAnimating = false
 
     function LinuxLib.Tab(config)
         tabOrder = tabOrder + 1
@@ -444,7 +445,12 @@ function Linux.Create(config)
             TabIndicator.Visible = true
             local tabPositionY = TabBtn.Position.Y.Offset + (tabIndex - 1) * (TabBtn.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
             local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (TabBtn.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
-            TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 5, 0, targetY)}):Play()
+            isAnimating = true
+            local tween = TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 5, 0, targetY)})
+            tween.Completed:Connect(function()
+                isAnimating = false
+            end)
+            tween:Play()
             CurrentTab = tabIndex
         end)
 
@@ -465,12 +471,17 @@ function Linux.Create(config)
             TabIndicator.Visible = true
             local tabPositionY = TabBtn.Position.Y.Offset + (tabIndex - 1) * (TabBtn.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
             local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (TabBtn.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
-            TabIndicator.Position = UDim2.new(0, 5, 0, targetY)
+            isAnimating = true
+            local tween = TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 5, 0, targetY)})
+            tween.Completed:Connect(function()
+                isAnimating = false
+            end)
+            tween:Play()
             CurrentTab = tabIndex
         end
 
         RunService:BindToRenderStep("Update", Enum.RenderPriority.Camera.Value + 1, function()
-            if CurrentTab and Tabs[CurrentTab] then
+            if CurrentTab and Tabs[CurrentTab] and not isAnimating then
                 local tab = Tabs[CurrentTab]
                 local tabIndex = CurrentTab
                 local tabPositionY = tab.Button.Position.Y.Offset + (tabIndex - 1) * (tab.Button.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
