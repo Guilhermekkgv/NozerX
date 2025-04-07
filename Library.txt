@@ -1794,8 +1794,10 @@ function Linux.Create(config)
                 Size = UDim2.new(0, 60, 0, 20),
                 Position = UDim2.new(1, -65, 0.5, -10),
                 Font = Enum.Font.SourceSans,
-                Text = config.Default and tostring(config.Default) or "TextColor3 = Linux.Theme.Text,
+                Text = config.Default and tostring(config.Default) or "Text = config.Default and tostring(config.Default) or "None",
+                TextColor3 = Linux.Theme.Text,
                 TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Center,
                 ZIndex = 2,
                 AutoButtonColor = false
             })
@@ -1826,28 +1828,29 @@ function Linux.Create(config)
                 ZIndex = 1
             })
 
-            local CurrentKey = config.Default or Enum.KeyCode.Unknown
-            local IsBinding = false
-
-            local function UpdateKeybind(key)
-                CurrentKey = key or CurrentKey
-                KeyBox.Text = tostring(CurrentKey):gsub("Enum.KeyCode.", "")
-                spawn(function() Linux:SafeCallback(config.Callback, CurrentKey) end)
-            end
+            local CurrentKey = config.Default
+            local AwaitingInput = false
 
             KeyBox.MouseButton1Click:Connect(function()
-                IsBinding = true
+                AwaitingInput = true
                 KeyBox.Text = "..."
                 TweenService:Create(KeyBoxGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
             end)
 
             InputService.InputBegan:Connect(function(input)
-                if IsBinding and input.UserInputType == Enum.UserInputType.Keyboard then
-                    UpdateKeybind(input.KeyCode)
-                    IsBinding = false
+                if AwaitingInput and input.UserInputType == Enum.UserInputType.Keyboard then
+                    local key = input.KeyCode
+                    if key ~= Enum.KeyCode.Escape then
+                        CurrentKey = key
+                        KeyBox.Text = tostring(key)
+                        spawn(function() Linux:SafeCallback(config.Callback, key) end)
+                    else
+                        CurrentKey = nil
+                        KeyBox.Text = "None"
+                        spawn(function() Linux:SafeCallback(config.Callback, nil) end)
+                    end
+                    AwaitingInput = false
                     TweenService:Create(KeyBoxGlow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
-                elseif input.KeyCode == CurrentKey and not IsBinding then
-                    spawn(function() Linux:SafeCallback(config.Callback, CurrentKey) end)
                 end
             end)
 
@@ -1856,13 +1859,15 @@ function Linux.Create(config)
             end)
 
             Keybind.MouseLeave:Connect(function()
-                if not IsBinding then
+                if not AwaitingInput then
                     TweenService:Create(KeybindGlow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
                 end
             end)
 
             local function SetKey(newKey)
-                UpdateKeybind(newKey)
+                CurrentKey = newKey
+                KeyBox.Text = newKey and tostring(newKey) or "None"
+                spawn(function() Linux:SafeCallback(config.Callback, newKey) end)
             end
 
             return {
@@ -1932,7 +1937,16 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = ColorBox,
-                CornerRadius = UDim.new(0, 4)
+                CornerRadius = UDim.new(1, 0)
+            })
+
+            local ColorBoxGradient = Linux.Instance("UIGradient", {
+                Parent = ColorBox,
+                Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, config.Default or Color3.fromRGB(255, 255, 255)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+                }),
+                Rotation = 45
             })
 
             local PickerFrame = Linux.Instance("Frame", {
@@ -1948,7 +1962,7 @@ function Linux.Create(config)
                 CornerRadius = UDim.new(0, 6)
             })
 
-            local PickerGradient = Linux.Instance("UIGradient", {
+            local PickerFrameGradient = Linux.Instance("UIGradient", {
                 Parent = PickerFrame,
                 Color = ColorSequence.new({
                     ColorSequenceKeypoint.new(0, Linux.Theme.Element),
@@ -1960,35 +1974,34 @@ function Linux.Create(config)
             local HueBar = Linux.Instance("Frame", {
                 Parent = PickerFrame,
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 15, 1, -40),
-                Position = UDim2.new(0, 10, 0, 10),
+                Size = UDim2.new(0, 20, 0, 100),
+                Position = UDim2.new(0, 5, 0, 5),
                 ZIndex = 3
             })
 
             Linux.Instance("UICorner", {
                 Parent = HueBar,
-                CornerRadius = UDim.new(1, 0)
+                CornerRadius = UDim.new(0, 4)
             })
 
             local HueGradient = Linux.Instance("UIGradient", {
                 Parent = HueBar,
                 Color = ColorSequence.new({
                     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-                    ColorSequenceKeypoint.new(0.167, Color3.fromRGB(255, 255, 0)),
-                    ColorSequenceKeypoint.new(0.333, Color3.fromRGB(0, 255, 0)),
+                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
                     ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-                    ColorSequenceKeypoint.new(0.667, Color3.fromRGB(0, 0, 255)),
-                    ColorSequenceKeypoint.new(0.833, Color3.fromRGB(255, 0, 255)),
+                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
                     ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-                }),
-                Rotation = 90
+                })
             })
 
             local HueKnob = Linux.Instance("Frame", {
                 Parent = HueBar,
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 Size = UDim2.new(1, 4, 0, 4),
-                Position = UDim2.new(-0.1, 0, 0, 0),
+                Position = UDim2.new(0, -2, 0, 0),
                 ZIndex = 4
             })
 
@@ -1997,30 +2010,21 @@ function Linux.Create(config)
                 CornerRadius = UDim.new(1, 0)
             })
 
-            local HueKnobGradient = Linux.Instance("UIGradient", {
-                Parent = HueKnob,
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
-                }),
-                Rotation = 45
-            })
-
-            local ColorArea = Linux.Instance("Frame", {
+            local SaturationValue = Linux.Instance("Frame", {
                 Parent = PickerFrame,
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(1, -35, 1, -40),
-                Position = UDim2.new(0, 30, 0, 10),
+                Size = UDim2.new(1, -40, 0, 100),
+                Position = UDim2.new(0, 30, 0, 5),
                 ZIndex = 3
             })
 
             Linux.Instance("UICorner", {
-                Parent = ColorArea,
+                Parent = SaturationValue,
                 CornerRadius = UDim.new(0, 4)
             })
 
-            local SaturationGradient = Linux.Instance("UIGradient", {
-                Parent = ColorArea,
+            local SatGradient = Linux.Instance("UIGradient", {
+                Parent = SaturationValue,
                 Color = ColorSequence.new({
                     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
                     ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
@@ -2028,8 +2032,8 @@ function Linux.Create(config)
                 Rotation = 0
             })
 
-            local ValueGradient = Linux.Instance("UIGradient", {
-                Parent = ColorArea,
+            local ValGradient = Linux.Instance("UIGradient", {
+                Parent = SaturationValue,
                 Color = ColorSequence.new({
                     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
                     ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
@@ -2037,26 +2041,17 @@ function Linux.Create(config)
                 Rotation = 90
             })
 
-            local ColorKnob = Linux.Instance("Frame", {
-                Parent = ColorArea,
+            local SVKnob = Linux.Instance("Frame", {
+                Parent = SaturationValue,
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 Size = UDim2.new(0, 8, 0, 8),
-                Position = UDim2.new(0, 0, 0, 0),
+                Position = UDim2.new(1, -4, 1, -4),
                 ZIndex = 4
             })
 
             Linux.Instance("UICorner", {
-                Parent = ColorKnob,
+                Parent = SVKnob,
                 CornerRadius = UDim.new(1, 0)
-            })
-
-            local ColorKnobGradient = Linux.Instance("UIGradient", {
-                Parent = ColorKnob,
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
-                }),
-                Rotation = 45
             })
 
             local IsOpen = false
@@ -2064,65 +2059,59 @@ function Linux.Create(config)
             local H, S, V = CurrentColor:ToHSV()
 
             local function UpdatePicker()
-                SaturationGradient.Color = ColorSequence.new({
+                local tween = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
+                if IsOpen then
+                    TweenService:Create(PickerFrame, tween, {Size = UDim2.new(1, -5, 0, 110)}):Play()
+                else
+                    TweenService:Create(PickerFrame, tween, {Size = UDim2.new(1, -5, 0, 0)}):Play()
+                end
+                task.wait(0.2)
+                TabContent.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
+            end
+
+            local function UpdateColor()
+                SatGradient.Color = ColorSequence.new({
                     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
                     ColorSequenceKeypoint.new(1, Color3.fromHSV(H, 1, 1))
                 })
+                CurrentColor = Color3.fromHSV(H, S, V)
                 ColorBox.BackgroundColor3 = CurrentColor
+                ColorBoxGradient.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, CurrentColor),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+                })
                 spawn(function() Linux:SafeCallback(config.Callback, CurrentColor) end)
             end
 
-            local function UpdateColor(pos)
-                local areaSize = ColorArea.AbsoluteSize
-                local areaPos = ColorArea.AbsolutePosition
-                S = math.clamp((pos.X - areaPos.X) / areaSize.X, 0, 1)
-                V = 1 - math.clamp((pos.Y - areaPos.Y) / areaSize.Y, 0, 1)
-                ColorKnob.Position = UDim2.new(S, -4, 1 - V, -4)
-                CurrentColor = Color3.fromHSV(H, S, V)
-                UpdatePicker()
-            end
-
             local function UpdateHue(pos)
-                local hueSize = HueBar.AbsoluteSize.Y
-                local huePos = HueBar.AbsolutePosition.Y
-                H = math.clamp((pos.Y - huePos) / hueSize, 0, 1)
-                HueKnob.Position = UDim2.new(-0.1, 0, H, -2)
-                CurrentColor = Color3.fromHSV(H, S, V)
-                UpdatePicker()
+                local relativePos = math.clamp((pos - HueBar.AbsolutePosition.Y) / HueBar.AbsoluteSize.Y, 0, 1)
+                H = 1 - relativePos
+                HueKnob.Position = UDim2.new(0, -2, relativePos, -2)
+                UpdateColor()
             end
 
-            local draggingColor = false
+            local function UpdateSV(posX, posY)
+                local satPos = math.clamp((posX - SaturationValue.AbsolutePosition.X) / SaturationValue.AbsoluteSize.X, 0, 1)
+                local valPos = math.clamp((posY - SaturationValue.AbsolutePosition.Y) / SaturationValue.AbsoluteSize.Y, 0, 1)
+                S = satPos
+                V = 1 - valPos
+                SVKnob.Position = UDim2.new(satPos, -4, valPos, -4)
+                UpdateColor()
+            end
+
             local draggingHue = false
-
-            ColorArea.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    draggingColor = true
-                    UpdateColor(input.Position)
-                end
-            end)
-
-            ColorArea.InputChanged:Connect(function(input)
-                if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) and draggingColor then
-                    UpdateColor(input.Position)
-                end
-            end)
-
-            ColorArea.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    draggingColor = false
-                end
-            end)
+            local draggingSV = false
 
             HueBar.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
                     draggingHue = true
-                    UpdateHue(input.Position)
+                    UpdateHue(input.Position.Y)
                 end
             end)
 
             HueBar.InputChanged:Connect(function(input)
                 if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) and draggingHue then
-                    UpdateHue(input.Position)
+                    UpdateHue(input.Position.Y)
                 end
             end)
 
@@ -2132,21 +2121,29 @@ function Linux.Create(config)
                 end
             end)
 
-            local function UpdatePickerSize()
-                local tween = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
-                if IsOpen then
-                    TweenService:Create(PickerFrame, tween, {Size = UDim2.new(1, -5, 0, 120)}):Play()
-                else
-                    TweenService:Create(PickerFrame, tween, {Size = UDim2.new(1, -5, 0, 0)}):Play()
+            SaturationValue.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    draggingSV = true
+                    UpdateSV(input.Position.X, input.Position.Y)
                 end
-                task.wait(0.2)
-                TabContent.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
-            end
+            end)
+
+            SaturationValue.InputChanged:Connect(function(input)
+                if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) and draggingSV then
+                    UpdateSV(input.Position.X, input.Position.Y)
+                end
+            end)
+
+            SaturationValue.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    draggingSV = false
+                end
+            end)
 
             ColorPicker.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
                     IsOpen = not IsOpen
-                    UpdatePickerSize()
+                    UpdatePicker()
                     TweenService:Create(ColorPickerGlow, TweenInfo.new(0.2), {ImageTransparency = IsOpen and 0.5 or 1}):Play()
                 end
             end)
@@ -2163,13 +2160,13 @@ function Linux.Create(config)
 
             local function SetColor(newColor)
                 CurrentColor = newColor
-                H, S, V = CurrentColor:ToHSV()
-                ColorKnob.Position = UDim2.new(S, -4, 1 - V, -4)
-                HueKnob.Position = UDim2.new(-0.1, 0, H, -2)
-                UpdatePicker()
+                H, S, V = newColor:ToHSV()
+                HueKnob.Position = UDim2.new(0, -2, 1 - H, -2)
+                SVKnob.Position = UDim2.new(S, -4, 1 - V, -4)
+                UpdateColor()
             end
 
-            UpdatePicker()
+            SetColor(CurrentColor)
 
             return {
                 Instance = ColorPicker,
@@ -2184,7 +2181,7 @@ function Linux.Create(config)
             local Paragraph = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
-                Size = UDim2.new(1, -5, 0, 50),
+                Size = UDim2.new(1, -5, 0, 60),
                 ZIndex = 1,
                 LayoutOrder = elementOrder
             })
@@ -2232,7 +2229,7 @@ function Linux.Create(config)
             local Content = Linux.Instance("TextLabel", {
                 Parent = Paragraph,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 25),
+                Size = UDim2.new(1, -10, 0, 30),
                 Position = UDim2.new(0, 5, 0, 25),
                 Font = Enum.Font.SourceSans,
                 Text = config.Content or "Content",
@@ -2266,48 +2263,58 @@ function Linux.Create(config)
         return TabElements
     end
 
+    local introDuration = config.IntroDuration or 3
+    local progress = 0
+    local tweenInfo = TweenInfo.new(introDuration / 100, Enum.EasingStyle.Linear)
+
+    local function UpdateProgress()
+        progress = progress + 1
+        ProgressText.Text = "Loading... " .. math.floor((progress / 100) * 100) .. "%"
+        if progress >= 100 then
+            local fadeOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            TweenService:Create(IntroFrame, fadeOut, {BackgroundTransparency = 1}):Play()
+            TweenService:Create(IntroTitle, fadeOut, {TextTransparency = 1}):Play()
+            TweenService:Create(WelcomeText, fadeOut, {TextTransparency = 1}):Play()
+            TweenService:Create(ProgressText, fadeOut, {TextTransparency = 1}):Play()
+            for _, wave in pairs(waveLines) do
+                TweenService:Create(wave, fadeOut, {BackgroundTransparency = 1}):Play()
+            end
+            for _, particle in pairs(ParticleContainer:GetChildren()) do
+                if particle:IsA("Frame") then
+                    TweenService:Create(particle, fadeOut, {BackgroundTransparency = 1}):Play()
+                end
+            end
+            task.wait(0.5)
+            IntroFrame:Destroy()
+            Main.Visible = true
+            local fadeIn = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            TweenService:Create(Main, fadeIn, {BackgroundTransparency = 0}):Play()
+        end
+    end
+
     spawn(function()
-        local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        TweenService:Create(IntroTitle, tweenInfo, {TextTransparency = 0}):Play()
-        TweenService:Create(WelcomeText, tweenInfo, {TextTransparency = 0}):Play()
-        TweenService:Create(ProgressText, tweenInfo, {TextTransparency = 0}):Play()
-
-        for i = 1, 20 do
-            local wave = waveLines[i]
-            local delay = (i - 1) * 0.05
-            local move = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true, delay)
-            TweenService:Create(wave, move, {Size = UDim2.new(0, 4, 0, 30)}):Play()
-        end
-
         for i = 1, 100 do
-            ProgressText.Text = "Loading... " .. i .. "%"
-            wait(0.02)
-        end
-
-        TweenService:Create(IntroFrame, tweenInfo, {BackgroundTransparency = 1}):Play()
-        for _, child in pairs(IntroFrame:GetDescendants()) do
-            if child:IsA("GuiObject") then
-                TweenService:Create(child, tweenInfo, {BackgroundTransparency = 1, TextTransparency = 1, ImageTransparency = 1}):Play()
-            end
-        end
-        wait(0.5)
-        IntroFrame:Destroy()
-        Main.Visible = true
-
-        for _, child in pairs(Main:GetDescendants()) do
-            if child:IsA("GuiObject") and child ~= Main then
-                child.BackgroundTransparency = child.BackgroundTransparency + 0.2
-                child.TextTransparency = child.TextTransparency + 0.2
-                child.ImageTransparency = child.ImageTransparency + 0.2
-            end
-        end
-
-        for _, child in pairs(Main:GetDescendants()) do
-            if child:IsA("GuiObject") and child ~= Main then
-                TweenService:Create(child, tweenInfo, {BackgroundTransparency = child.BackgroundTransparency - 0.2, TextTransparency = child.TextTransparency - 0.2, ImageTransparency = child.ImageTransparency - 0.2}):Play()
-            end
+            UpdateProgress()
+            task.wait(introDuration / 100)
         end
     end)
+
+    spawn(function()
+        local waveDuration = 0.5
+        while IntroFrame.Parent do
+            for i = 1, #waveLines do
+                local wave = waveLines[i]
+                local height = math.sin((i / #waveLines) * math.pi * 2 + (tick() % (2 * math.pi))) * 10 + 10
+                TweenService:Create(wave, TweenInfo.new(waveDuration, Enum.EasingStyle.Sine), {Size = UDim2.new(0, 4, 0, height)}):Play()
+            end
+            task.wait(waveDuration)
+        end
+    end)
+
+    local fadeIn = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+    TweenService:Create(IntroTitle, fadeIn, {TextTransparency = 0}):Play()
+    TweenService:Create(WelcomeText, fadeIn, {TextTransparency = 0}):Play()
+    TweenService:Create(ProgressText, fadeIn, {TextTransparency = 0}):Play()
 
     return LinuxLib
 end
