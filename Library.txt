@@ -275,8 +275,15 @@ function Linux.Create(config)
         ZIndex = 1
     })
 
+    local IndicatorHolder = Linux.Instance("Frame", {
+        Parent = TabsBar,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 3
+    })
+
     local TabIndicator = Linux.Instance("Frame", {
-        Parent = TabHolder,
+        Parent = IndicatorHolder,
         BackgroundColor3 = Linux.Theme.Accent,
         Size = UDim2.new(0, 5, 0, 22),
         Position = UDim2.new(0, 5, 0, 0),
@@ -439,6 +446,23 @@ function Linux.Create(config)
             TabIndicator.Visible = true
             local tabPositionY = TabBtn.Position.Y.Offset + (tabIndex - 1) * (TabBtn.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
             local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (TabBtn.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
+
+            -- Definir os limites superior e inferior do TabsBar
+            local tabsBarHeight = TabsBar.AbsoluteSize.Y
+            local minY = 0
+            local maxY = tabsBarHeight - TabIndicator.Size.Y.Offset
+
+            -- Verificar se a aba selecionada tá visível dentro do TabsBar
+            local tabTopY = tabPositionY - TabHolder.CanvasPosition.Y
+            local tabBottomY = tabTopY + TabBtn.Size.Y.Offset
+            local isTabVisible = (tabTopY + TabBtn.Size.Y.Offset >= 0) and (tabBottomY <= tabsBarHeight)
+
+            -- Limitar o targetY aos limites do TabsBar
+            targetY = math.clamp(targetY, minY, maxY)
+
+            -- Ajustar a visibilidade do TabIndicator
+            TabIndicator.Visible = isTabVisible
+
             isAnimating = true
             local tween = TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 5, 0, targetY)})
             tween.Completed:Connect(function()
@@ -465,6 +489,23 @@ function Linux.Create(config)
             TabIndicator.Visible = true
             local tabPositionY = TabBtn.Position.Y.Offset + (tabIndex - 1) * (TabBtn.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
             local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (TabBtn.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
+
+            -- Definir os limites superior e inferior do TabsBar
+            local tabsBarHeight = TabsBar.AbsoluteSize.Y
+            local minY = 0
+            local maxY = tabsBarHeight - TabIndicator.Size.Y.Offset
+
+            -- Verificar se a aba selecionada tá visível dentro do TabsBar
+            local tabTopY = tabPositionY - TabHolder.CanvasPosition.Y
+            local tabBottomY = tabTopY + TabBtn.Size.Y.Offset
+            local isTabVisible = (tabTopY + TabBtn.Size.Y.Offset >= 0) and (tabBottomY <= tabsBarHeight)
+
+            -- Limitar o targetY aos limites do TabsBar
+            targetY = math.clamp(targetY, minY, maxY)
+
+            -- Ajustar a visibilidade do TabIndicator
+            TabIndicator.Visible = isTabVisible
+
             isAnimating = true
             local tween = TweenService:Create(TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 5, 0, targetY)})
             tween.Completed:Connect(function()
@@ -479,7 +520,24 @@ function Linux.Create(config)
                 local tab = Tabs[CurrentTab]
                 local tabIndex = CurrentTab
                 local tabPositionY = tab.Button.Position.Y.Offset + (tabIndex - 1) * (tab.Button.Size.Y.Offset + TabLayout.Padding.Offset) + TabPadding.PaddingTop.Offset
-                local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (TabBtn.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
+                local targetY = tabPositionY - TabHolder.CanvasPosition.Y + (tab.Button.Size.Y.Offset - TabIndicator.Size.Y.Offset) / 2
+
+                -- Definir os limites superior e inferior do TabsBar
+                local tabsBarHeight = TabsBar.AbsoluteSize.Y
+                local minY = 0
+                local maxY = tabsBarHeight - TabIndicator.Size.Y.Offset
+
+                -- Verificar se a aba selecionada tá visível dentro do TabsBar
+                local tabTopY = tabPositionY - TabHolder.CanvasPosition.Y
+                local tabBottomY = tabTopY + tab.Button.Size.Y.Offset
+                local isTabVisible = (tabTopY + tab.Button.Size.Y.Offset >= 0) and (tabBottomY <= tabsBarHeight)
+
+                -- Limitar o targetY aos limites do TabsBar
+                targetY = math.clamp(targetY, minY, maxY)
+
+                -- Ajustar a visibilidade do TabIndicator
+                TabIndicator.Visible = isTabVisible
+
                 TabIndicator.Position = UDim2.new(0, 5, 0, targetY)
             end
         end)
