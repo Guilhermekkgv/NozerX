@@ -167,11 +167,30 @@ function Linux.Create(config)
         CornerRadius = UDim.new(0, 5)
     })
 
+    local Gradient = Linux.Instance("UIGradient", {
+        Parent = IntroFrame,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(24, 24, 24)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+        }),
+        Rotation = 45
+    })
+
+    spawn(function()
+        while IntroFrame.Parent do
+            local tween = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            TweenService:Create(Gradient, tween, {Offset = Vector2.new(1, 0)}):Play()
+            wait(2)
+            TweenService:Create(Gradient, tween, {Offset = Vector2.new(-1, 0)}):Play()
+            wait(2)
+        end
+    end)
+
     local IntroTitle = Linux.Instance("TextLabel", {
         Parent = IntroFrame,
         BackgroundTransparency = 1,
         Size = UDim2.new(1, 0, 0, 50),
-        Position = UDim2.new(0, 0, 0, 50),
+        Position = UDim2.new(0, 0, 0, 80),
         Font = Enum.Font.SourceSansBold,
         Text = config.Name or "Linux UI",
         TextColor3 = Linux.Theme.Text,
@@ -181,43 +200,116 @@ function Linux.Create(config)
         ZIndex = 1001
     })
 
-    local ProgressBarFrame = Linux.Instance("Frame", {
+    spawn(function()
+        while IntroTitle.Parent do
+            local pulse = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+            TweenService:Create(IntroTitle, pulse, {TextSize = 38}):Play()
+            wait(0.8)
+            TweenService:Create(IntroTitle, pulse, {TextSize = 36}):Play()
+            wait(0.8)
+        end
+    end)
+
+    local WelcomeText = Linux.Instance("TextLabel", {
         Parent = IntroFrame,
-        BackgroundColor3 = Linux.Theme.Element,
-        Size = UDim2.new(0.6, 0, 0, 10),
-        Position = UDim2.new(0.2, 0, 0.7, 0),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 30),
+        Position = UDim2.new(0, 0, 0, 130),
+        Font = Enum.Font.SourceSans,
+        Text = "Welcome, " .. LocalPlayer.Name,
+        TextColor3 = Linux.Theme.Text,
+        TextSize = 20,
+        TextTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Center,
         ZIndex = 1001
     })
 
-    Linux.Instance("UICorner", {
-        Parent = ProgressBarFrame,
-        CornerRadius = UDim.new(1, 0)
-    })
-
-    local ProgressBarFill = Linux.Instance("Frame", {
-        Parent = ProgressBarFrame,
-        BackgroundColor3 = Linux.Theme.Accent,
-        Size = UDim2.new(0, 0, 1, 0),
+    local ParticleContainer = Linux.Instance("Frame", {
+        Parent = IntroFrame,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
         ZIndex = 1002
     })
 
-    Linux.Instance("UICorner", {
-        Parent = ProgressBarFill,
-        CornerRadius = UDim.new(1, 0)
+    spawn(function()
+        for i = 1, 15 do
+            local Particle = Linux.Instance("Frame", {
+                Parent = ParticleContainer,
+                BackgroundColor3 = Linux.Theme.Accent,
+                Size = UDim2.new(0, 4, 0, 4),
+                Position = UDim2.new(math.random(), 0, math.random(), 0),
+                ZIndex = 1003
+            })
+
+            Linux.Instance("UICorner", {
+                Parent = Particle,
+                CornerRadius = UDim.new(1, 0)
+            })
+
+            spawn(function()
+                while Particle.Parent do
+                    local move = TweenInfo.new(math.random(2, 4), Enum.EasingStyle.Sine)
+                    TweenService:Create(Particle, move, {
+                        Position = UDim2.new(math.random(), 0, math.random(), 0),
+                        BackgroundTransparency = math.random(0.3, 0.7)
+                    }):Play()
+                    wait(math.random(2, 4))
+                end
+            end)
+        end
+    end)
+
+    local WaveContainer = Linux.Instance("Frame", {
+        Parent = IntroFrame,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.6, 0, 0, 40),
+        Position = UDim2.new(0.2, 0, 0.65, 0),
+        ZIndex = 1001
     })
+
+    local waveLines = {}
+    for i = 1, 20 do
+        local WaveLine = Linux.Instance("Frame", {
+            Parent = WaveContainer,
+            BackgroundColor3 = Linux.Theme.Accent,
+            Size = UDim2.new(0, 4, 0, 10),
+            Position = UDim2.new((i - 1) / 20, 0, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            ZIndex = 1002
+        })
+
+        Linux.Instance("UICorner", {
+            Parent = WaveLine,
+            CornerRadius = UDim.new(1, 0)
+        })
+
+        waveLines[i] = WaveLine
+    end
 
     local ProgressText = Linux.Instance("TextLabel", {
         Parent = IntroFrame,
         BackgroundTransparency = 1,
         Size = UDim2.new(1, 0, 0, 20),
         Position = UDim2.new(0, 0, 0.8, 0),
-        Font = Enum.Font.SourceSans,
+        Font = Enum.Font.SourceSansBold,
         Text = "Loading... 0%",
         TextColor3 = Linux.Theme.Text,
         TextSize = 16,
         TextTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Center,
         ZIndex = 1001
+    })
+
+    local Glow = Linux.Instance("ImageLabel", {
+        Parent = ProgressText,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 20, 1, 20),
+        Position = UDim2.new(-0.05, 0, -0.5, 0),
+        Image = "rbxassetid://243098098",
+        ImageColor3 = Linux.Theme.Accent,
+        ImageTransparency = 0.8,
+        ScaleType = Enum.ScaleType.Slice,
+        ZIndex = 1000
     })
 
     local Main = Linux.Instance("Frame", {
@@ -513,7 +605,6 @@ function Linux.Create(config)
         function TabElements.Button(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local BtnFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -569,7 +660,6 @@ function Linux.Create(config)
         function TabElements.Toggle(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Toggle = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -663,7 +753,6 @@ function Linux.Create(config)
         function TabElements.Dropdown(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Dropdown = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -850,7 +939,6 @@ function Linux.Create(config)
         function TabElements.Slider(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Slider = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -988,7 +1076,6 @@ function Linux.Create(config)
         function TabElements.Input(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Input = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1087,7 +1174,6 @@ function Linux.Create(config)
         function TabElements.Label(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local LabelFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1129,7 +1215,6 @@ function Linux.Create(config)
         function TabElements.Section(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Section = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundTransparency = 1,
@@ -1157,7 +1242,6 @@ function Linux.Create(config)
         function TabElements.Keybind(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local Keybind = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1323,7 +1407,6 @@ function Linux.Create(config)
         function TabElements.ColorPicker(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local ColorPicker = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1448,7 +1531,6 @@ function Linux.Create(config)
         function TabElements.Paragraph(config)
             elementOrder = elementOrder + 1
             totalElements = totalElements + 1
-            wait(0.01)
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1536,45 +1618,58 @@ function Linux.Create(config)
         return TabElementsProxy
     end
 
-    function LinuxLib.Finish()
-        local totalTabs = tabOrder
-        local totalItems = totalTabs + totalElements
-        local baseLoadTime = 2
-        local timePerItem = 0.5
-        local totalLoadTime = baseLoadTime + (totalItems * timePerItem)
+    local totalTabs = tabOrder
+    local totalItems = totalTabs + totalElements
+    local baseLoadTime = 2
+    local timePerItem = 0.1
+    local totalLoadTime = baseLoadTime + (totalItems * timePerItem)
+
+    spawn(function()
+        local fadeIn = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        TweenService:Create(IntroTitle, fadeIn, {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(WelcomeText, fadeIn, {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(ProgressText, fadeIn, {TextTransparency = 0}):Play()
 
         spawn(function()
-            local fadeIn = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-            TweenService:Create(IntroTitle, fadeIn, {TextTransparency = 0}):Play()
-            TweenService:Create(ProgressText, fadeIn, {TextTransparency = 0}):Play()
-
-            local progressInfo = TweenInfo.new(totalLoadTime, Enum.EasingStyle.Linear)
-            local progressTween = TweenService:Create(ProgressBarFill, progressInfo, {Size = UDim2.new(1, 0, 1, 0)})
-            progressTween:Play()
-
-            local progressValue = Instance.new("NumberValue")
-            progressValue.Value = 0
-            local textTween = TweenService:Create(progressValue, progressInfo, {Value = 100})
-            textTween:Play()
-
-            progressValue.Changed:Connect(function(value)
-                ProgressText.Text = "Loading... " .. math.floor(value) .. "%"
-            end)
-
-            textTween.Completed:Wait()
-
-            local fadeOut = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(IntroFrame, fadeOut, {BackgroundTransparency = 1}):Play()
-            TweenService:Create(IntroTitle, fadeOut, {TextTransparency = 1}):Play()
-            TweenService:Create(ProgressText, fadeOut, {TextTransparency = 1}):Play()
-            TweenService:Create(ProgressBarFrame, fadeOut, {BackgroundTransparency = 1}):Play()
-            TweenService:Create(ProgressBarFill, fadeOut, {BackgroundTransparency = 1}):Play()
-
-            wait(0.5)
-            IntroFrame:Destroy()
-            Main.Visible = true
+            local waveSpeed = totalLoadTime / 2
+            for t = 0, totalLoadTime, 0.05 do
+                for i, line in ipairs(waveLines) do
+                    local offset = (i / #waveLines) * 2 * math.pi
+                    local height = math.sin((t / waveSpeed) * 2 * math.pi + offset) * 15 + 10
+                    line.Size = UDim2.new(0, 4, 0, height)
+                end
+                wait(0.05)
+            end
         end)
-    end
+
+        for i = 0, 100 do
+            ProgressText.Text = "Loading... " .. tostring(i) .. "%"
+            wait(totalLoadTime / 100)
+        end
+
+        local dissolve = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(IntroFrame, dissolve, {BackgroundTransparency = 1}):Play()
+        TweenService:Create(IntroTitle, dissolve, {TextTransparency = 1}):Play()
+        TweenService:Create(WelcomeText, dissolve, {TextTransparency = 1}):Play()
+        TweenService:Create(ProgressText, dissolve, {TextTransparency = 1}):Play()
+        TweenService:Create(Glow, dissolve, {ImageTransparency = 1}):Play()
+
+        for _, line in ipairs(waveLines) do
+            TweenService:Create(line, dissolve, {BackgroundTransparency = 1}):Play()
+        end
+
+        for _, particle in pairs(ParticleContainer:GetChildren()) do
+            if particle:IsA("Frame") then
+                TweenService:Create(particle, dissolve, {BackgroundTransparency = 1}):Play()
+            end
+        end
+
+        wait(0.8)
+        IntroFrame:Destroy()
+        Main.Visible = true
+    end)
 
     return LinuxLib
 end
