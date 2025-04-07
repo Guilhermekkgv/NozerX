@@ -1,0 +1,695 @@
+local TweenService = game:GetService("TweenService")
+local InputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Linux = {
+    Theme = {
+        Background = Color3.fromRGB(24, 24, 24),
+        Element = Color3.fromRGB(28, 28, 28),
+        Accent = Color3.fromRGB(80, 120, 255),
+        Text = Color3.fromRGB(180, 180, 180),
+        Toggle = Color3.fromRGB(40, 40, 40),
+        TabInactive = Color3.fromRGB(28, 28, 28),
+        DropdownOption = Color3.fromRGB(30, 30, 30)
+    }
+}
+
+function Linux.Instance(class, props)
+    local inst = Instance.new(class)
+    for k, v in pairs(props or {}) do
+        inst[k] = v
+    end
+    return inst
+end
+
+function Linux:SafeCallback(Function, ...)
+    if not Function then
+        return
+    end
+    local Success, Error = pcall(Function, ...)
+    if not Success then
+        self:Notify({
+            Title = "Callback Error",
+            Content = tostring(Error),
+            Duration = 5
+        })
+    end
+end
+
+function Linux:Notify(config)
+    local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
+    local notificationWidth = isMobile and 200 or 300
+    local notificationHeight = config.SubContent and 80 or 60
+    local startPosX = isMobile and 10 or 20
+
+    local NotificationHolder = Linux.Instance("ScreenGui", {
+        Name = "NotificationHolder",
+        Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
+        ResetOnSpawn = false,
+        Enabled = true,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    })
+
+    local Notification = Linux.Instance("Frame", {
+        Parent = NotificationHolder,
+        BackgroundColor3 = Linux.Theme.Background,
+        Size = UDim2.new(0, notificationWidth, 0, notificationHeight),
+        Position = UDim2.new(1, 10, 1, -notificationHeight - 10),
+        ZIndex = 100
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = Notification,
+        CornerRadius = UDim.new(0, 5)
+    })
+
+    local Gradient = Linux.Instance("UIGradient", {
+        Parent = Notification,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Linux.Theme.Background),
+            ColorSequenceKeypoint.new(1, Linux.Theme.Element)
+        }),
+        Rotation = 45
+    })
+
+    local TitleLabel = Linux.Instance("TextLabel", {
+        Parent = Notification,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -10, 0, 20),
+        Position = UDim2.new(0, 5, 0, 5),
+        Font = Enum.Font.SourceSansBold,
+        Text = config.Title or "Notification",
+        TextColor3 = Linux.Theme.Text,
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ZIndex = 101
+    })
+
+    local ContentLabel = Linux.Instance("TextLabel", {
+        Parent = Notification,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -10, 0, 20),
+        Position = UDim2.new(0, 5, 0, 25),
+        Font = Enum.Font.SourceSans,
+        Text = config.Content or "Content",
+        TextColor3 = Linux.Theme.Text,
+        TextSize = 14,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ZIndex = 101
+    })
+
+    if config.SubContent then
+        local SubContentLabel = Linux.Instance("TextLabel", {
+            Parent = Notification,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -10, 0, 20),
+            Position = UDim2.new(0, 5, 0, 45),
+            Font = Enum.Font.SourceSans,
+            Text = config.SubContent,
+            TextColor3 = Color3.fromRGB(150, 150, 150),
+            TextSize = 12,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            ZIndex = 101
+        })
+    end
+
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(0, startPosX, 1, -notificationHeight - 10)}):Play()
+
+    if config.Duration then
+        task.delay(config.Duration, function()
+            TweenService:Create(Notification, tweenInfo, {Position = UDim2.new(1, 10, 1, -notificationHeight - 10)}):Play()
+            task.wait(0.5)
+            NotificationHolder:Destroy()
+        end)
+    end
+end
+
+function Linux.Create(config)
+    local randomName = "UI_" .. tostring(math.random(100000, 999999))
+
+    for _, v in pairs(game.CoreGui:GetChildren()) do
+        if v:IsA("ScreenGui") and v.Name:match("^UI_%d+$") then
+            v:Destroy()
+        end
+    end
+
+    local LinuxUI = Linux.Instance("ScreenGui", {
+        Name = randomName,
+        Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
+        ResetOnSpawn = false,
+        Enabled = true
+    })
+
+    local FakeUI = Linux.Instance("ScreenGui", {
+        Name = "FakeUI",
+        Parent = game:GetService("CoreGui"),
+        Enabled = false,
+        ResetOnSpawn = false
+    })
+
+    local tabWidth = config.TabWidth or 110
+    local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
+    local uiSize = isMobile and (config.SizeMobile or UDim2.fromOffset(495, 345)) or (config.SizePC or UDim2.fromOffset(600, 400))
+
+    local Main = Linux.Instance("Frame", {
+        Parent = LinuxUI,
+        BackgroundColor3 = Linux.Theme.Background,
+        Size = uiSize,
+        Position = UDim2.new(0.5, -uiSize.X.Offset / 2, 0.5, -uiSize.Y.Offset / 2),
+        Active = true,
+        Draggable = true,
+        ZIndex = 1,
+        Visible = true
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = Main,
+        CornerRadius = UDim.new(0, 8)
+    })
+
+    local MainGradient = Linux.Instance("UIGradient", {
+        Parent = Main,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(24, 24, 24)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+        }),
+        Rotation = 45
+    })
+
+    spawn(function()
+        while Main.Parent do
+            local tween = TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            TweenService:Create(MainGradient, tween, {Offset = Vector2.new(1, 0)}):Play()
+            wait(3)
+            TweenService:Create(MainGradient, tween, {Offset = Vector2.new(-1, 0)}):Play()
+            wait(3)
+        end
+    end)
+
+    local BackgroundParticles = Linux.Instance("Frame", {
+        Parent = Main,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 0
+    })
+
+    spawn(function()
+        for i = 1, 10 do
+            local Particle = Linux.Instance("Frame", {
+                Parent = BackgroundParticles,
+                BackgroundColor3 = Linux.Theme.Accent,
+                Size = UDim2.new(0, 3, 0, 3),
+                Position = UDim2.new(math.random(), 0, math.random(), 0),
+                ZIndex = 0
+            })
+
+            Linux.Instance("UICorner", {
+                Parent = Particle,
+                CornerRadius = UDim.new(1, 0)
+            })
+
+            spawn(function()
+                while Particle.Parent do
+                    local move = TweenInfo.new(math.random(3, 5), Enum.EasingStyle.Sine)
+                    TweenService:Create(Particle, move, {
+                        Position = UDim2.new(math.random(), 0, math.random(), 0),
+                        BackgroundTransparency = math.random(0.5, 0.9)
+                    }):Play()
+                    wait(math.random(3, 5))
+                end
+            end)
+        end
+    end)
+
+    local TopBar = Linux.Instance("Frame", {
+        Parent = Main,
+        BackgroundColor3 = Linux.Theme.Element,
+        Size = UDim2.new(1, 0, 0, 25),
+        ZIndex = 2
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = TopBar,
+        CornerRadius = UDim.new(0, 8)
+    })
+
+    local TopBarGradient = Linux.Instance("UIGradient", {
+        Parent = TopBar,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Linux.Theme.Element),
+            ColorSequenceKeypoint.new(1, Linux.Theme.Background)
+        }),
+        Rotation = 45
+    })
+
+    local Title = Linux.Instance("TextLabel", {
+        Parent = TopBar,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0.8, -10, 1, 0),
+        Position = UDim2.new(0, 5, 0, 0),
+        Font = Enum.Font.SourceSansBold,
+        Text = config.Name or "Linux UI",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 2
+    })
+
+    local MinimizeButton = Linux.Instance("TextButton", {
+        Parent = TopBar,
+        BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, -45, 0, 2),
+        ZIndex = 3,
+        AutoButtonColor = false
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = MinimizeButton,
+        CornerRadius = UDim.new(1, 0)
+    })
+
+    local MinimizeGlow = Linux.Instance("ImageLabel", {
+        Parent = MinimizeButton,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 10, 1, 10),
+        Position = UDim2.new(-0.25, 0, -0.25, 0),
+        Image = "rbxassetid://243098098",
+        ImageColor3 = Linux.Theme.Accent,
+        ImageTransparency = 1,
+        ScaleType = Enum.ScaleType.Slice,
+        ZIndex = 2
+    })
+
+    local MinimizeIcon = Linux.Instance("ImageLabel", {
+        Parent = MinimizeButton,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(0.5, -8, 0.5, -8),
+        Image = "rbxassetid://10734895698",
+        ImageColor3 = Color3.fromRGB(255, 255, 255),
+        ZIndex = 3
+    })
+
+    local CloseButton = Linux.Instance("TextButton", {
+        Parent = TopBar,
+        BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, -20, 0, 2),
+        ZIndex = 3,
+        AutoButtonColor = false
+    })
+
+    Linux.Instance("UICorner", {
+        Parent = CloseButton,
+        CornerRadius = UDim.new(1, 0)
+    })
+
+    local CloseGlow = Linux.Instance("ImageLabel", {
+        Parent = CloseButton,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 10, 1, 10),
+        Position = UDim2.new(-0.25, 0, -0.25, 0),
+        Image = "rbxassetid://243098098",
+        ImageColor3 = Linux.Theme.Accent,
+        ImageTransparency = 1,
+        ScaleType = Enum.ScaleType.Slice,
+        ZIndex = 2
+    })
+
+    local CloseIcon = Linux.Instance("ImageLabel", {
+        Parent = CloseButton,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(0.5, -8, 0.5, -8),
+        Image = "rbxassetid://10747384394",
+        ImageColor3 = Color3.fromRGB(255, 255, 255),
+        ZIndex = 3
+    })
+
+    MinimizeButton.MouseEnter:Connect(function()
+        TweenService:Create(MinimizeGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
+    end)
+
+    MinimizeButton.MouseLeave:Connect(function()
+        TweenService:Create(MinimizeGlow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+    end)
+
+    CloseButton.MouseEnter:Connect(function()
+        TweenService:Create(CloseGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
+    end)
+
+    CloseButton.MouseLeave:Connect(function()
+        TweenService:Create(CloseGlow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+    end)
+
+    local TabsBar = Linux.Instance("Frame", {
+        Parent = Main,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 0, 0, 25),
+        Size = UDim2.new(0, tabWidth, 1, -25),
+        ZIndex = 2
+    })
+
+    local TabHolder = Linux.Instance("ScrollingFrame", {
+        Parent = TabsBar,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ScrollBarThickness = 0,
+        ZIndex = 2
+    })
+
+    local TabLayout = Linux.Instance("UIListLayout", {
+        Parent = TabHolder,
+        Padding = UDim.new(0, 3),
+        HorizontalAlignment = Enum.HorizontalAlignment.Left,
+        VerticalAlignment = Enum.VerticalAlignment.Top,
+        SortOrder = Enum.SortOrder.LayoutOrder
+    })
+
+    local TabPadding = Linux.Instance("UIPadding", {
+        Parent = TabHolder,
+        PaddingLeft = UDim.new(0, 5),
+        PaddingTop = UDim.new(0, 5)
+    })
+
+    local Content = Linux.Instance("Frame", {
+        Parent = Main,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, tabWidth, 0, 25),
+        Size = UDim2.new(1, -tabWidth, 1, -25),
+        ZIndex = 1
+    })
+
+    local isMinimized = false
+    local originalSize = Main.Size
+    local originalPos = Main.Position
+    local isHidden = false
+
+    MinimizeButton.MouseButton1Click:Connect(function()
+        local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        if not isMinimized then
+            TweenService:Create(Main, tweenInfo, {Size = UDim2.new(0, 200, 0, 25), Position = UDim2.new(0.5, -100, 0, 0)}):Play()
+            TabsBar.Visible = false
+            Content.Visible = false
+            MinimizeIcon.Image = "rbxassetid://10734886735"
+            isMinimized = true
+        else
+            TweenService:Create(Main, tweenInfo, {Size = originalSize, Position = originalPos}):Play()
+            TabsBar.Visible = true
+            Content.Visible = true
+            MinimizeIcon.Image = "rbxassetid://10734895698"
+            isMinimized = false
+        end
+    end)
+
+    CloseButton.MouseButton1Click:Connect(function()
+        LinuxUI:Destroy()
+        FakeUI:Destroy()
+    end)
+
+    InputService.InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.LeftAlt then
+            isHidden = not isHidden
+            Main.Visible = not isHidden
+        end
+    end)
+
+    local LinuxLib = {}
+    local Tabs = {}
+    local CurrentTab = nil
+    local tabOrder = 0
+    local totalElements = 0
+
+    function LinuxLib.Tab(config)
+        tabOrder = tabOrder + 1
+        local tabIndex = tabOrder
+
+        local TabBtn = Linux.Instance("TextButton", {
+            Parent = TabHolder,
+            BackgroundColor3 = Linux.Theme.TabInactive,
+            Size = UDim2.new(1, -5, 0, 28),
+            Font = Enum.Font.SourceSans,
+            Text = "",
+            TextColor3 = Linux.Theme.Text,
+            TextSize = 14,
+            ZIndex = 2,
+            AutoButtonColor = false,
+            LayoutOrder = tabIndex
+        })
+
+        Linux.Instance("UICorner", {
+            Parent = TabBtn,
+            CornerRadius = UDim.new(0, 6)
+        })
+
+        local TabGradient = Linux.Instance("UIGradient", {
+            Parent = TabBtn,
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Linux.Theme.TabInactive),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+            }),
+            Rotation = 45
+        })
+
+        local TabGlow = Linux.Instance("ImageLabel", {
+            Parent = TabBtn,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 10, 1, 10),
+            Position = UDim2.new(-0.05, 0, -0.05, 0),
+            Image = "rbxassetid://243098098",
+            ImageColor3 = Linux.Theme.Accent,
+            ImageTransparency = 1,
+            ScaleType = Enum.ScaleType.Slice,
+            ZIndex = 1
+        })
+
+        local TabIcon
+        if config.Icon and config.Icon.Enabled then
+            TabIcon = Linux.Instance("ImageLabel", {
+                Parent = TabBtn,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 16, 0, 16),
+                Position = UDim2.new(0, 5, 0.5, -8),
+                Image = config.Icon.Image or "rbxassetid://10747384394",
+                ImageColor3 = Color3.fromRGB(150, 150, 150),
+                ZIndex = 2
+            })
+        end
+
+        local TabText = Linux.Instance("TextLabel", {
+            Parent = TabBtn,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, config.Icon and config.Icon.Enabled and -26 or -10, 1, 0),
+            Position = UDim2.new(0, config.Icon and config.Icon.Enabled and 26 or 5, 0, 0),
+            Font = Enum.Font.SourceSans,
+            Text = config.Name,
+            TextColor3 = Color3.fromRGB(150, 150, 150),
+            TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 2
+        })
+
+        local TabContent = Linux.Instance("ScrollingFrame", {
+            Parent = Content,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            ScrollBarThickness = 0,
+            Visible = false,
+            ZIndex = 1
+        })
+
+        local TabTitle = Linux.Instance("TextLabel", {
+            Parent = TabContent,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -10, 0, 30),
+            Position = UDim2.new(0, 5, 0, 0),
+            Font = Enum.Font.SourceSansBold,
+            Text = config.Name,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextSize = 18,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 2
+        })
+
+        local ElementContainer = Linux.Instance("Frame", {
+            Parent = TabContent,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, -30),
+            Position = UDim2.new(0, 0, 0, 30),
+            ZIndex = 1
+        })
+
+        local ContentLayout = Linux.Instance("UIListLayout", {
+            Parent = ElementContainer,
+            Padding = UDim.new(0, 4),
+            HorizontalAlignment = Enum.HorizontalAlignment.Left,
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+
+        local ContentPadding = Linux.Instance("UIPadding", {
+            Parent = ElementContainer,
+            PaddingLeft = UDim.new(0, 5),
+            PaddingTop = UDim.new(0, 5)
+        })
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, tab in pairs(Tabs) do
+                tab.Content.Visible = false
+                tab.Text.TextColor3 = Color3.fromRGB(150, 150, 150)
+                if tab.Icon then
+                    tab.Icon.ImageColor3 = Color3.fromRGB(150, 150, 150)
+                end
+                tab.Button.BackgroundTransparency = 0.2
+                TweenService:Create(tab.Glow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+                for _, child in pairs(tab.Content:GetChildren()) do
+                    if child:IsA("Frame") or child:IsA("ScrollingFrame") then
+                        TweenService:Create(child, TweenInfo.new(0.2), {BackgroundTransparency = child.BackgroundTransparency + 0.2}):Play()
+                    end
+                end
+            end
+            TabContent.Visible = true
+            TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            if TabIcon then
+                TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+            end
+            TabBtn.BackgroundTransparency = 0
+            TweenService:Create(TabGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
+            for _, child in pairs(TabContent:GetChildren()) do
+                if child:IsA("Frame") or child:IsA("ScrollingFrame") then
+                    TweenService:Create(child, TweenInfo.new(0.2), {BackgroundTransparency = child.BackgroundTransparency - 0.2}):Play()
+                end
+            end
+            CurrentTab = tabIndex
+        end)
+
+        Tabs[tabIndex] = {
+            Name = config.Name,
+            Button = TabBtn,
+            Text = TabText,
+            Icon = TabIcon,
+            Content = TabContent,
+            Glow = TabGlow
+        }
+
+        if not CurrentTab then
+            TabContent.Visible = true
+            TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            if TabIcon then
+                TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+            end
+            TabBtn.BackgroundTransparency = 0
+            TweenService:Create(TabGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
+            CurrentTab = tabIndex
+        end
+
+        local TabElements = {}
+        local elementOrder = 0
+
+        function TabElements.Button(config)
+            elementOrder = elementOrder + 1
+            totalElements = totalElements + 1
+            local BtnFrame = Linux.Instance("Frame", {
+                Parent = ElementContainer,
+                BackgroundColor3 = Linux.Theme.Element,
+                Size = UDim2.new(1, -5, 0, 30),
+                ZIndex = 1,
+                LayoutOrder = elementOrder
+            })
+
+            Linux.Instance("UICorner", {
+                Parent = BtnFrame,
+                CornerRadius = UDim.new(0, 6)
+            })
+
+            local BtnGradient = Linux.Instance("UIGradient", {
+                Parent = BtnFrame,
+                Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Linux.Theme.Element),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+                }),
+                Rotation = 45
+            })
+
+            local BtnGlow = Linux.Instance("ImageLabel", {
+                Parent = BtnFrame,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 10, 1, 10),
+                Position = UDim2.new(-0.05, 0, -0.05, 0),
+                Image = "rbxassetid://243098098",
+                ImageColor3 = Linux.Theme.Accent,
+                ImageTransparency = 1,
+                ScaleType = Enum.ScaleType.Slice,
+                ZIndex = 0
+            })
+
+            local Btn = Linux.Instance("TextButton", {
+                Parent = BtnFrame,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 30),
+                Position = UDim2.new(0, 0, 0, 0),
+                Font = Enum.Font.SourceSans,
+                Text = config.Name,
+                TextColor3 = Linux.Theme.Text,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 1,
+                AutoButtonColor = false
+            })
+
+            local BtnPadding = Linux.Instance("UIPadding", {
+                Parent = Btn,
+                PaddingLeft = UDim.new(0, 5)
+            })
+
+            local BtnIcon = Linux.Instance("ImageLabel", {
+                Parent = BtnFrame,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 14, 0, 14),
+                Position = UDim2.new(1, -20, 0.5, -7),
+                Image = "rbxassetid://10709791437",
+                ImageColor3 = Linux.Theme.Text,
+                ZIndex = 1
+            })
+
+            Btn.MouseEnter:Connect(function()
+                TweenService:Create(BtnGlow, TweenInfo.new(0.2), {ImageTransparency = 0.5}):Play()
+            end)
+
+            Btn.MouseLeave:Connect(function()
+                TweenService:Create(BtnGlow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+            end)
+
+            Btn.MouseButton1Click:Connect(function()
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Accent}):Play()
+                spawn(function() Linux:SafeCallback(config.Callback) end)
+                wait(0.1)
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Linux.Theme.Element}):Play()
+                TweenService:Create(BtnGradient, TweenInfo.new(0.1), {Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Linux.Theme.Element),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+                })}):Play()
+            end)
+
+            return Btn
+        end
+
+        return TabElements
+    end
+
+    return LinuxLib
+end
+
+return Linux
