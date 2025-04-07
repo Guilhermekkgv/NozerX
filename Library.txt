@@ -6,13 +6,13 @@ local LocalPlayer = Players.LocalPlayer
 
 local Linux = {
     Theme = {
-        Background = Color3.fromRGB(30, 30, 30),
-        Element = Color3.fromRGB(50, 50, 50),
-        Accent = Color3.fromRGB(0, 120, 215),
-        Text = Color3.fromRGB(220, 220, 220),
-        Toggle = Color3.fromRGB(70, 70, 70),
-        TabInactive = Color3.fromRGB(40, 40, 40),
-        DropdownOption = Color3.fromRGB(60, 60, 60)
+        Background = Color3.fromRGB(24, 24, 24),
+        Element = Color3.fromRGB(28, 28, 28),
+        Accent = Color3.fromRGB(80, 120, 255),
+        Text = Color3.fromRGB(180, 180, 180),
+        Toggle = Color3.fromRGB(40, 40, 40),
+        TabInactive = Color3.fromRGB(28, 28, 28),
+        DropdownOption = Color3.fromRGB(30, 30, 30)
     }
 }
 
@@ -63,26 +63,7 @@ function Linux:Notify(config)
 
     Linux.Instance("UICorner", {
         Parent = Notification,
-        CornerRadius = UDim.new(0, 8)
-    })
-
-    local NotificationStroke = Linux.Instance("UIStroke", {
-        Parent = Notification,
-        Color = Linux.Theme.Accent,
-        Thickness = 2,
-        Transparency = 0.5
-    })
-
-    local NotificationGradient = Linux.Instance("UIGradient", {
-        Parent = NotificationStroke,
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Linux.Theme.Accent),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-        }),
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0.5),
-            NumberSequenceKeypoint.new(1, 1)
-        })
+        CornerRadius = UDim.new(0, 5)
     })
 
     local TitleLabel = Linux.Instance("TextLabel", {
@@ -171,7 +152,7 @@ function Linux.Create(config)
     local tabWidth = config.TabWidth or 110
 
     local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
-    local uiSize = isMobile and (config.SizeMobile or UDim2.fromOffset(495, 345)) or (config.SizePC or UDim2.fromOffset(600, 400))
+    local uiSize = isMobile and (config.SizeMobile or UDim2.fromOffset(300, 500)) or (config.SizePC or UDim2.fromOffset(550, 355))
 
     local Main = Linux.Instance("Frame", {
         Parent = LinuxUI,
@@ -180,54 +161,12 @@ function Linux.Create(config)
         Position = UDim2.new(0.5, -uiSize.X.Offset / 2, 0.5, -uiSize.Y.Offset / 2),
         Active = true,
         Draggable = true,
-        ZIndex = 1,
-        Visible = true
+        ZIndex = 1
     })
 
     Linux.Instance("UICorner", {
         Parent = Main,
-        CornerRadius = UDim.new(0, 8)
-    })
-
-    local MainStroke = Linux.Instance("UIStroke", {
-        Parent = Main,
-        Color = Linux.Theme.Accent,
-        Thickness = 2,
-        Transparency = 0.5
-    })
-
-    local MainGradient = Linux.Instance("UIGradient", {
-        Parent = MainStroke,
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Linux.Theme.Accent),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-        }),
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0.5),
-            NumberSequenceKeypoint.new(1, 1)
-        })
-    })
-
-    local InnerShadow = Linux.Instance("Frame", {
-        Parent = Main,
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BackgroundTransparency = 0.8,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 0
-    })
-
-    Linux.Instance("UICorner", {
-        Parent = InnerShadow,
-        CornerRadius = UDim.new(0, 8)
-    })
-
-    local InnerGradient = Linux.Instance("UIGradient", {
-        Parent = InnerShadow,
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0.8),
-            NumberSequenceKeypoint.new(0.5, 0.9),
-            NumberSequenceKeypoint.new(1, 1)
-        })
+        CornerRadius = UDim.new(0, 5)
     })
 
     local TopBar = Linux.Instance("Frame", {
@@ -239,14 +178,7 @@ function Linux.Create(config)
 
     Linux.Instance("UICorner", {
         Parent = TopBar,
-        CornerRadius = UDim.new(0, 8)
-    })
-
-    local TopBarStroke = Linux.Instance("UIStroke", {
-        Parent = TopBar,
-        Color = Color3.fromRGB(255, 255, 255),
-        Thickness = 1,
-        Transparency = 0.8
+        CornerRadius = UDim.new(0, 5)
     })
 
     local Title = Linux.Instance("TextLabel", {
@@ -256,7 +188,7 @@ function Linux.Create(config)
         Position = UDim2.new(0, 5, 0, 0),
         Font = Enum.Font.SourceSansBold,
         Text = config.Name or "Linux UI",
-        TextColor3 = Linux.Theme.Text,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 2
@@ -278,7 +210,7 @@ function Linux.Create(config)
         Size = UDim2.new(0, 16, 0, 16),
         Position = UDim2.new(0.5, -8, 0.5, -8),
         Image = "rbxassetid://10734895698",
-        ImageColor3 = Linux.Theme.Text,
+        ImageColor3 = Color3.fromRGB(255, 255, 255),
         ZIndex = 3
     })
 
@@ -298,7 +230,7 @@ function Linux.Create(config)
         Size = UDim2.new(0, 16, 0, 16),
         Position = UDim2.new(0.5, -8, 0.5, -8),
         Image = "rbxassetid://10747384394",
-        ImageColor3 = Linux.Theme.Text,
+        ImageColor3 = Color3.fromRGB(255, 255, 255),
         ZIndex = 3
     })
 
@@ -380,7 +312,34 @@ function Linux.Create(config)
     local Tabs = {}
     local CurrentTab = nil
     local tabOrder = 0
-    local totalElements = 0
+
+    function LinuxLib.UpdateTheme()
+        for _, v in pairs(LinuxUI:GetDescendants()) do
+            if v:IsA("Frame") then
+                if v.BackgroundColor3 == Linux.Theme.Background then
+                    v.BackgroundColor3 = Linux.Theme.Background
+                elseif v.BackgroundColor3 == Linux.Theme.Element then
+                    v.BackgroundColor3 = Linux.Theme.Element
+                elseif v.BackgroundColor3 == Linux.Theme.Accent then
+                    v.BackgroundColor3 = Linux.Theme.Accent
+                elseif v.BackgroundColor3 == Linux.Theme.Toggle then
+                    v.BackgroundColor3 = Linux.Theme.Toggle
+                elseif v.BackgroundColor3 == Linux.Theme.TabInactive then
+                    v.BackgroundColor3 = Linux.Theme.TabInactive
+                elseif v.BackgroundColor3 == Linux.Theme.DropdownOption then
+                    v.BackgroundColor3 = Linux.Theme.DropdownOption
+                end
+            elseif v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                if v.TextColor3 == Linux.Theme.Text then
+                    v.TextColor3 = Linux.Theme.Text
+                end
+            elseif v:IsA("ImageLabel") then
+                if v.ImageColor3 == Linux.Theme.Text then
+                    v.ImageColor3 = Linux.Theme.Text
+                end
+            end
+        end
+    end
 
     function LinuxLib.Tab(config)
         tabOrder = tabOrder + 1
@@ -401,14 +360,7 @@ function Linux.Create(config)
 
         Linux.Instance("UICorner", {
             Parent = TabBtn,
-            CornerRadius = UDim.new(0, 6)
-        })
-
-        local TabBtnStroke = Linux.Instance("UIStroke", {
-            Parent = TabBtn,
-            Color = Color3.fromRGB(255, 255, 255),
-            Thickness = 1,
-            Transparency = 0.9
+            CornerRadius = UDim.new(0, 4)
         })
 
         local TabIcon
@@ -419,7 +371,7 @@ function Linux.Create(config)
                 Size = UDim2.new(0, 16, 0, 16),
                 Position = UDim2.new(0, 5, 0.5, -8),
                 Image = config.Icon.Image or "rbxassetid://10747384394",
-                ImageColor3 = Color3.fromRGB(130, 130, 130),
+                ImageColor3 = Color3.fromRGB(150, 150, 150),
                 ZIndex = 2
             })
         end
@@ -431,7 +383,7 @@ function Linux.Create(config)
             Position = UDim2.new(0, config.Icon and config.Icon.Enabled and 26 or 5, 0, 0),
             Font = Enum.Font.SourceSans,
             Text = config.Name,
-            TextColor3 = Color3.fromRGB(130, 130, 130),
+            TextColor3 = Color3.fromRGB(150, 150, 150),
             TextSize = 14,
             TextXAlignment = Enum.TextXAlignment.Left,
             ZIndex = 2
@@ -455,7 +407,7 @@ function Linux.Create(config)
             Position = UDim2.new(0, 5, 0, 0),
             Font = Enum.Font.SourceSansBold,
             Text = config.Name,
-            TextColor3 = Linux.Theme.Text,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
             TextSize = 18,
             TextXAlignment = Enum.TextXAlignment.Left,
             ZIndex = 2
@@ -485,15 +437,15 @@ function Linux.Create(config)
         TabBtn.MouseButton1Click:Connect(function()
             for _, tab in pairs(Tabs) do
                 tab.Content.Visible = false
-                tab.Text.TextColor3 = Color3.fromRGB(130, 130, 130)
+                tab.Text.TextColor3 = Color3.fromRGB(150, 150, 150)
                 if tab.Icon then
-                    tab.Icon.ImageColor3 = Color3.fromRGB(130, 130, 130)
+                    tab.Icon.ImageColor3 = Color3.fromRGB(150, 150, 150)
                 end
             end
             TabContent.Visible = true
-            TabText.TextColor3 = Linux.Theme.Text
+            TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
             if TabIcon then
-                TabIcon.ImageColor3 = Linux.Theme.Text
+                TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
             end
             CurrentTab = tabIndex
         end)
@@ -508,9 +460,9 @@ function Linux.Create(config)
 
         if not CurrentTab then
             TabContent.Visible = true
-            TabText.TextColor3 = Linux.Theme.Text
+            TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
             if TabIcon then
-                TabIcon.ImageColor3 = Linux.Theme.Text
+                TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
             end
             CurrentTab = tabIndex
         end
@@ -520,7 +472,6 @@ function Linux.Create(config)
 
         function TabElements.Button(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local BtnFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -531,14 +482,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = BtnFrame,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local BtnStroke = Linux.Instance("UIStroke", {
-                Parent = BtnFrame,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Btn = Linux.Instance("TextButton", {
@@ -565,7 +509,7 @@ function Linux.Create(config)
                 BackgroundTransparency = 1,
                 Size = UDim2.new(0, 14, 0, 14),
                 Position = UDim2.new(1, -20, 0.5, -7),
-                Image "rbxassetid://10709791437",
+                Image = "rbxassetid://10709791437",
                 ImageColor3 = Linux.Theme.Text,
                 ZIndex = 1
             })
@@ -582,7 +526,6 @@ function Linux.Create(config)
 
         function TabElements.Toggle(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Toggle = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -593,14 +536,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Toggle,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local ToggleStroke = Linux.Instance("UIStroke", {
-                Parent = Toggle,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -643,7 +579,7 @@ function Linux.Create(config)
 
             local Knob = Linux.Instance("Frame", {
                 Parent = ToggleBox,
-                BackgroundColor3 = Color3.fromRGB(130, 130, 130),
+                BackgroundColor3 = Color3.fromRGB(150, 150, 150),
                 Size = UDim2.new(0, 16, 0, 16),
                 Position = UDim2.new(0, 2, 0, 2),
                 ZIndex = 2
@@ -660,10 +596,10 @@ function Linux.Create(config)
                 local tween = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
                 if State then
                     TweenService:Create(ToggleFill, tween, {BackgroundColor3 = Linux.Theme.Accent, Size = UDim2.new(1, 0, 1, 0)}):Play()
-                    TweenService:Create(Knob, tween, {Position = UDim2.new(1, -18, 0, 2), BackgroundColor3 = Linux.Theme.Text}):Play()
+                    TweenService:Create(Knob, tween, {Position = UDim2.new(1, -18, 0, 2), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
                 else
                     TweenService:Create(ToggleFill, tween, {BackgroundColor3 = Linux.Theme.Toggle, Size = UDim2.new(0, 0, 1, 0)}):Play()
-                    TweenService:Create(Knob, tween, {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(130, 130, 130)}):Play()
+                    TweenService:Create(Knob, tween, {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(150, 150, 150)}):Play()
                 end
             end
 
@@ -682,7 +618,6 @@ function Linux.Create(config)
 
         function TabElements.Dropdown(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Dropdown = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -693,14 +628,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Dropdown,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local DropdownStroke = Linux.Instance("UIStroke", {
-                Parent = Dropdown,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -752,14 +680,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = DropFrame,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local DropFrameStroke = Linux.Instance("UIStroke", {
-                Parent = DropFrame,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local DropLayout = Linux.Instance("UIListLayout", {
@@ -823,14 +744,7 @@ function Linux.Create(config)
 
                         Linux.Instance("UICorner", {
                             Parent = OptBtn,
-                            CornerRadius = UDim.new(0, 6)
-                        })
-
-                        local OptBtnStroke = Linux.Instance("UIStroke", {
-                            Parent = OptBtn,
-                            Color = Color3.fromRGB(255, 255, 255),
-                            Thickness = 1,
-                            Transparency = 0.9
+                            CornerRadius = UDim.new(0, 4)
                         })
 
                         OptBtn.MouseButton1Click:Connect(function()
@@ -889,7 +803,6 @@ function Linux.Create(config)
 
         function TabElements.Slider(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Slider = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -900,14 +813,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Slider,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local SliderStroke = Linux.Instance("UIStroke", {
-                Parent = Slider,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -951,7 +857,7 @@ function Linux.Create(config)
 
             local FillBar = Linux.Instance("Frame", {
                 Parent = SliderBar,
-                BackgroundColor3 = Linux.Theme.Accent,
+                BackgroundColor3 = Color3.fromRGB(200, 200, 200),
                 Size = UDim2.new(0, 0, 1, 0),
                 Position = UDim2.new(0, 0, 0, 0),
                 ZIndex = 1
@@ -964,7 +870,7 @@ function Linux.Create(config)
 
             local Knob = Linux.Instance("Frame", {
                 Parent = SliderBar,
-                BackgroundColor3 = Linux.Theme.Text,
+                BackgroundColor3 = Color3.fromRGB(255, 255, 250),
                 Size = UDim2.new(0, 12, 0, 12),
                 Position = UDim2.new(0, 0, 0, -3),
                 ZIndex = 2
@@ -1033,7 +939,6 @@ function Linux.Create(config)
 
         function TabElements.Input(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Input = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1044,14 +949,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Input,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local InputStroke = Linux.Instance("UIStroke", {
-                Parent = Input,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -1075,7 +973,7 @@ function Linux.Create(config)
                 Font = Enum.Font.SourceSans,
                 Text = config.Default or "",
                 PlaceholderText = config.Placeholder or "Text Here",
-                PlaceholderColor3 = Color3.fromRGB(130, 130, 130),
+                PlaceholderColor3 = Color3.fromRGB(150, 150, 150),
                 TextColor3 = Linux.Theme.Text,
                 TextSize = 14,
                 TextScaled = false,
@@ -1088,7 +986,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = TextBox,
-                CornerRadius = UDim.new(0, 6)
+                CornerRadius = UDim.new(0, 4)
             })
 
             local MaxLength = 50
@@ -1138,7 +1036,6 @@ function Linux.Create(config)
 
         function TabElements.Label(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local LabelFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1149,14 +1046,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = LabelFrame,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local LabelStroke = Linux.Instance("UIStroke", {
-                Parent = LabelFrame,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local LabelText = Linux.Instance("TextLabel", {
@@ -1186,7 +1076,6 @@ function Linux.Create(config)
 
         function TabElements.Section(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Section = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundTransparency = 1,
@@ -1202,7 +1091,7 @@ function Linux.Create(config)
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSansBold,
                 Text = config.Name,
-                TextColor3 = Linux.Theme.Text,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextSize = 18,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 ZIndex = 1
@@ -1213,7 +1102,6 @@ function Linux.Create(config)
 
         function TabElements.Keybind(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local Keybind = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1224,14 +1112,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Keybind,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local KeybindStroke = Linux.Instance("UIStroke", {
-                Parent = Keybind,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -1266,7 +1147,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = KeyBox,
-                CornerRadius = UDim.new(0, 6)
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Mode = config.Mode or "Hold"
@@ -1385,7 +1266,6 @@ function Linux.Create(config)
 
         function TabElements.ColorPicker(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local ColorPicker = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1396,14 +1276,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = ColorPicker,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local ColorPickerStroke = Linux.Instance("UIStroke", {
-                Parent = ColorPicker,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local Label = Linux.Instance("TextLabel", {
@@ -1431,12 +1304,12 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = Palette,
-                CornerRadius = UDim.new(0, 6)
+                CornerRadius = UDim.new(0, 4)
             })
 
             local PaletteKnob = Linux.Instance("Frame", {
                 Parent = Palette,
-                BackgroundColor3 = Linux.Theme.Text,
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 Size = UDim2.new(0, 8, 0, 8),
                 Position = UDim2.new(1, -4, 1, -4),
                 ZIndex = 2
@@ -1516,7 +1389,6 @@ function Linux.Create(config)
 
         function TabElements.Paragraph(config)
             elementOrder = elementOrder + 1
-            totalElements = totalElements + 1
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = ElementContainer,
                 BackgroundColor3 = Linux.Theme.Element,
@@ -1528,14 +1400,7 @@ function Linux.Create(config)
 
             Linux.Instance("UICorner", {
                 Parent = ParagraphFrame,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            local ParagraphStroke = Linux.Instance("UIStroke", {
-                Parent = ParagraphFrame,
-                Color = Color3.fromRGB(255, 255, 255),
-                Thickness = 1,
-                Transparency = 0.9
+                CornerRadius = UDim.new(0, 4)
             })
 
             local ParagraphTitle = Linux.Instance("TextLabel", {
@@ -1545,7 +1410,7 @@ function Linux.Create(config)
                 Position = UDim2.new(0, 5, 0, 0),
                 Font = Enum.Font.SourceSansBold,
                 Text = config.Title or "",
-                TextColor3 = Linux.Theme.Text,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextSize = 16,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 ZIndex = 1
@@ -1609,6 +1474,89 @@ function Linux.Create(config)
         end
 
         return TabElementsProxy
+    end
+
+    local settingsTabEnabled = config.SettingsTabEnabled == nil and true or config.SettingsTabEnabled
+
+    if settingsTabEnabled then
+        local SettingsTab = LinuxLib.Tab({
+            Name = "Settings",
+            Icon = {
+                Enabled = true,
+                Image = "rbxassetid://10734949875"
+            }
+        })
+
+        SettingsTab.Section({
+            Name = "Theme Settings"
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Background Color",
+            Callback = function(color)
+                Linux.Theme.Background = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Element Color",
+            Callback = function(color)
+                Linux.Theme.Element = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Accent Color",
+            Callback = function(color)
+                Linux.Theme.Accent = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Text Color",
+            Callback = function(color)
+                Linux.Theme.Text = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Toggle Color",
+            Callback = function(color)
+                Linux.Theme.Toggle = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Tab Inactive Color",
+            Callback = function(color)
+                Linux.Theme.TabInactive = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.ColorPicker({
+            Name = "Dropdown Option Color",
+            Callback = function(color)
+                Linux.Theme.DropdownOption = color
+                LinuxLib.UpdateTheme()
+            end
+        })
+
+        SettingsTab.Button({
+            Name = "Save Settings",
+            Callback = function()
+                Linux:Notify({
+                    Title = "Settings Saved",
+                    Content = "Your theme settings have been saved!",
+                    Duration = 3
+                })
+            end
+        })
     end
 
     return LinuxLib
