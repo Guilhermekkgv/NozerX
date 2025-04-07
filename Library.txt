@@ -4,8 +4,10 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local Linux = {
-    Theme = {
+local Linux = {}
+
+local Themes = {
+    Cyberpunk = {
         Background = Color3.fromRGB(20, 15, 30),
         Element = Color3.fromRGB(30, 25, 45),
         Accent = Color3.fromRGB(0, 200, 255),
@@ -13,6 +15,15 @@ local Linux = {
         Toggle = Color3.fromRGB(40, 35, 55),
         TabInactive = Color3.fromRGB(25, 20, 40),
         DropdownOption = Color3.fromRGB(35, 30, 50)
+    },
+    Midnight = {
+        Background = Color3.fromRGB(10, 15, 25),
+        Element = Color3.fromRGB(20, 25, 35),
+        Accent = Color3.fromRGB(100, 150, 200),
+        Text = Color3.fromRGB(220, 225, 230),
+        Toggle = Color3.fromRGB(30, 35, 45),
+        TabInactive = Color3.fromRGB(15, 20, 30),
+        DropdownOption = Color3.fromRGB(25, 30, 40)
     }
 }
 
@@ -55,7 +66,7 @@ function Linux:Notify(config)
 
     local Notification = Linux.Instance("Frame", {
         Parent = NotificationHolder,
-        BackgroundColor3 = Linux.Theme.Background,
+        BackgroundColor3 = self.Theme.Background,
         Size = UDim2.new(0, notificationWidth, 0, notificationHeight),
         Position = UDim2.new(1, 10, 1, -notificationHeight - 10),
         ZIndex = 100
@@ -73,7 +84,7 @@ function Linux:Notify(config)
         Position = UDim2.new(0, 5, 0, 5),
         Font = Enum.Font.SourceSansBold,
         Text = config.Title or "Notification",
-        TextColor3 = Linux.Theme.Text,
+        TextColor3 = self.Theme.Text,
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top,
@@ -87,7 +98,7 @@ function Linux:Notify(config)
         Position = UDim2.new(0, 5, 0, 25),
         Font = Enum.Font.SourceSans,
         Text = config.Content or "Content",
-        TextColor3 = Linux.Theme.Text,
+        TextColor3 = self.Theme.Text,
         TextSize = 14,
         TextWrapped = true,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -154,163 +165,7 @@ function Linux.Create(config)
     local isMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled
     local uiSize = isMobile and (config.SizeMobile or UDim2.fromOffset(495, 345)) or (config.SizePC or UDim2.fromOffset(600, 400))
 
-    local IntroFrame = Linux.Instance("Frame", {
-        Parent = LinuxUI,
-        BackgroundColor3 = Linux.Theme.Background,
-        Size = uiSize,
-        Position = UDim2.new(0.5, -uiSize.X.Offset / 2, 0.5, -uiSize.Y.Offset / 2),
-        ZIndex = 1000
-    })
-
-    Linux.Instance("UICorner", {
-        Parent = IntroFrame,
-        CornerRadius = UDim.new(0, 5)
-    })
-
-    local Gradient = Linux.Instance("UIGradient", {
-        Parent = IntroFrame,
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Linux.Theme.Background),
-            ColorSequenceKeypoint.new(1, Linux.Theme.Element)
-        }),
-        Rotation = 45
-    })
-
-    spawn(function()
-        while IntroFrame.Parent do
-            local tween = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            TweenService:Create(Gradient, tween, {Offset = Vector2.new(1, 0)}):Play()
-            wait(2)
-            TweenService:Create(Gradient, tween, {Offset = Vector2.new(-1, 0)}):Play()
-            wait(2)
-        end
-    end)
-
-    local IntroTitle = Linux.Instance("TextLabel", {
-        Parent = IntroFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 50),
-        Position = UDim2.new(0, 0, 0, 80),
-        Font = Enum.Font.SourceSansBold,
-        Text = config.Name or "Linux UI",
-        TextColor3 = Linux.Theme.Text,
-        TextSize = 36,
-        TextTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Center,
-        ZIndex = 1001
-    })
-
-    spawn(function()
-        while IntroTitle.Parent do
-            local pulse = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-            TweenService:Create(IntroTitle, pulse, {TextSize = 38}):Play()
-            wait(0.8)
-            TweenService:Create(IntroTitle, pulse, {TextSize = 36}):Play()
-            wait(0.8)
-        end
-    end)
-
-    local WelcomeText = Linux.Instance("TextLabel", {
-        Parent = IntroFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 30),
-        Position = UDim2.new(0, 0, 0, 130),
-        Font = Enum.Font.SourceSans,
-        Text = "Welcome, " .. LocalPlayer.Name,
-        TextColor3 = Linux.Theme.Text,
-        TextSize = 20,
-        TextTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Center,
-        ZIndex = 1001
-    })
-
-    local ParticleContainer = Linux.Instance("Frame", {
-        Parent = IntroFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 1002
-    })
-
-    spawn(function()
-        for i = 1, 15 do
-            local Particle = Linux.Instance("Frame", {
-                Parent = ParticleContainer,
-                BackgroundColor3 = Linux.Theme.Accent,
-                Size = UDim2.new(0, 4, 0, 4),
-                Position = UDim2.new(math.random(), 0, math.random(), 0),
-                ZIndex = 1003
-            })
-
-            Linux.Instance("UICorner", {
-                Parent = Particle,
-                CornerRadius = UDim.new(1, 0)
-            })
-
-            spawn(function()
-                while Particle.Parent do
-                    local move = TweenInfo.new(math.random(2, 4), Enum.EasingStyle.Sine)
-                    TweenService:Create(Particle, move, {
-                        Position = UDim2.new(math.random(), 0, math.random(), 0),
-                        BackgroundTransparency = math.random(0.3, 0.7)
-                    }):Play()
-                    wait(math.random(2, 4))
-                end
-            end)
-        end
-    end)
-
-    local WaveContainer = Linux.Instance("Frame", {
-        Parent = IntroFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(0.6, 0, 0, 40),
-        Position = UDim2.new(0.2, 0, 0.65, 0),
-        ZIndex = 1001
-    })
-
-    local waveLines = {}
-    for i = 1, 20 do
-        local WaveLine = Linux.Instance("Frame", {
-            Parent = WaveContainer,
-            BackgroundColor3 = Linux.Theme.Accent,
-            Size = UDim2.new(0, 4, 0, 10),
-            Position = UDim2.new((i - 1) / 20, 0, 0.5, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
-            ZIndex = 1002
-        })
-
-        Linux.Instance("UICorner", {
-            Parent = WaveLine,
-            CornerRadius = UDim.new(1, 0)
-        })
-
-        waveLines[i] = WaveLine
-    end
-
-    local ProgressText = Linux.Instance("TextLabel", {
-        Parent = IntroFrame,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0.8, 0),
-        Font = Enum.Font.SourceSansBold,
-        Text = "Loading... 0%",
-        TextColor3 = Linux.Theme.Text,
-        TextSize = 16,
-        TextTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Center,
-        ZIndex = 1001
-    })
-
-    local Glow = Linux.Instance("ImageLabel", {
-        Parent = ProgressText,
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 20, 1, 20),
-        Position = UDim2.new(-0.05, 0, -0.5, 0),
-        Image = "rbxassetid://243098098",
-        ImageColor3 = Linux.Theme.Accent,
-        ImageTransparency = 0.8,
-        ScaleType = Enum.ScaleType.Slice,
-        ZIndex = 1000
-    })
+    Linux.Theme = Themes[config.Theme] or Themes.Cyberpunk
 
     local Main = Linux.Instance("Frame", {
         Parent = LinuxUI,
@@ -320,7 +175,7 @@ function Linux.Create(config)
         Active = true,
         Draggable = true,
         ZIndex = 1,
-        Visible = false
+        Visible = true
     })
 
     Linux.Instance("UICorner", {
@@ -1617,59 +1472,6 @@ function Linux.Create(config)
 
         return TabElementsProxy
     end
-
-    local totalTabs = tabOrder
-    local totalItems = totalTabs + totalElements
-    local baseLoadTime = 2
-    local timePerItem = 0.1
-    local totalLoadTime = baseLoadTime + (totalItems * timePerItem)
-
-    spawn(function()
-        local fadeIn = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-        TweenService:Create(IntroTitle, fadeIn, {TextTransparency = 0}):Play()
-        wait(0.3)
-        TweenService:Create(WelcomeText, fadeIn, {TextTransparency = 0}):Play()
-        wait(0.3)
-        TweenService:Create(ProgressText, fadeIn, {TextTransparency = 0}):Play()
-
-        spawn(function()
-            local waveSpeed = totalLoadTime / 2
-            for t = 0, totalLoadTime, 0.05 do
-                for i, line in ipairs(waveLines) do
-                    local offset = (i / #waveLines) * 2 * math.pi
-                    local height = math.sin((t / waveSpeed) * 2 * math.pi + offset) * 15 + 10
-                    line.Size = UDim2.new(0, 4, 0, height)
-                end
-                wait(0.05)
-            end
-        end)
-
-        for i = 0, 100 do
-            ProgressText.Text = "Loading... " .. tostring(i) .. "%"
-            wait(totalLoadTime / 100)
-        end
-
-        local dissolve = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        TweenService:Create(IntroFrame, dissolve, {BackgroundTransparency = 1}):Play()
-        TweenService:Create(IntroTitle, dissolve, {TextTransparency = 1}):Play()
-        TweenService:Create(WelcomeText, dissolve, {TextTransparency = 1}):Play()
-        TweenService:Create(ProgressText, dissolve, {TextTransparency = 1}):Play()
-        TweenService:Create(Glow, dissolve, {ImageTransparency = 1}):Play()
-
-        for _, line in ipairs(waveLines) do
-            TweenService:Create(line, dissolve, {BackgroundTransparency = 1}):Play()
-        end
-
-        for _, particle in pairs(ParticleContainer:GetChildren()) do
-            if particle:IsA("Frame") then
-                TweenService:Create(particle, dissolve, {BackgroundTransparency = 1}):Play()
-            end
-        end
-
-        wait(0.8)
-        IntroFrame:Destroy()
-        Main.Visible = true
-    end)
 
     return LinuxLib
 end
